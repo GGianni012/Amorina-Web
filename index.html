@@ -11,6 +11,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -618,6 +619,69 @@
             align-items: center;
         }
 
+        .perfil-user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .perfil-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .perfil-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .perfil-details {
+            text-align: center;
+        }
+
+        .perfil-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .perfil-email {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 12px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #f5f5f5;
+            color: var(--black);
+        }
+
         .modal-location-name {
             display: flex;
             align-items: center;
@@ -820,8 +884,11 @@
                 <img src="logo-aquilea.png" alt="Aquilea" class="logo-aquilea">
                 <span class="logo-text">Amorina</span>
             </a>
-            <div class="header-icon" onclick="goToSection(3)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <div class="header-icon" id="userProfileBtn">
+                <div id="userAvatar"
+                    style="display: none; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--red); color: white; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem;">
+                </div>
+                <svg id="defaultUserIcon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
                 </svg>
@@ -873,20 +940,35 @@
             <!-- PERFIL SECTION -->
             <section id="perfil" class="section">
                 <h2 class="section-title">MI PERFIL</h2>
-                <p class="section-subtitle">Accedé a tu historial de películas y nivel de suscripción.</p>
-                <button class="login-btn" onclick="loginWithGoogle()">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                        <path
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    INICIAR CON GOOGLE
-                </button>
+
+                <div id="loggedOutView">
+                    <p class="section-subtitle">Accedé a tu historial de películas y nivel de suscripción.</p>
+                    <button class="login-btn" onclick="loginWithGoogle()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        INICIAR CON GOOGLE
+                    </button>
+                </div>
+
+                <div id="loggedInView" style="display: none;">
+                    <div class="perfil-user-info">
+                        <div class="perfil-avatar" id="perfilAvatarContainer"></div>
+                        <div class="perfil-details">
+                            <div class="perfil-name" id="perfilName"></div>
+                            <div class="perfil-email" id="perfilEmail"></div>
+                            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                    <p class="section-subtitle">Próximamente: Tus entradas y nivel de socio.</p>
+                </div>
             </section>
         </div>
     </div>
@@ -928,6 +1010,80 @@
         </div>
     </div>
 
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhempudHZyeGZ5eGxpbmt1aXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MjUwMDQsImV4cCI6MjA4MzIwMTAwNH0.otXE48RY5EWwjTXzDUvncLrJO7ujfU5RJTj6C--ouy4';
+
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Auth Logic
+        async function loginWithGoogle() {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) console.error('Error logging in:', error.message);
+        }
+
+        async function logout() {
+            const { error } = await supabase.auth.signOut();
+            if (error) console.error('Error logging out:', error.message);
+        }
+
+        function updateAuthUI(user) {
+            const loggedOutView = document.getElementById('loggedOutView');
+            const loggedInView = document.getElementById('loggedInView');
+            const userAvatar = document.getElementById('userAvatar');
+            const defaultUserIcon = document.getElementById('defaultUserIcon');
+            const perfilAvatarContainer = document.getElementById('perfilAvatarContainer');
+            const perfilName = document.getElementById('perfilName');
+            const perfilEmail = document.getElementById('perfilEmail');
+
+            if (user) {
+                loggedOutView.style.display = 'none';
+                loggedInView.style.display = 'block';
+
+                // Header Avatar
+                userAvatar.style.display = 'flex';
+                defaultUserIcon.style.display = 'none';
+
+                const initials = user.user_metadata.full_name
+                    ? user.user_metadata.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                    : user.email[0].toUpperCase();
+
+                if (user.user_metadata.avatar_url) {
+                    userAvatar.innerHTML = `<img src="${user.user_metadata.avatar_url}" alt="Avatar">`;
+                    perfilAvatarContainer.innerHTML = `<img src="${user.user_metadata.avatar_url}" alt="Avatar">`;
+                } else {
+                    userAvatar.innerText = initials;
+                    perfilAvatarContainer.innerText = initials;
+                }
+
+                // Perfil Section
+                perfilName.innerText = user.user_metadata.full_name || 'Usuario';
+                perfilEmail.innerText = user.email;
+            } else {
+                loggedOutView.style.display = 'block';
+                loggedInView.style.display = 'none';
+                userAvatar.style.display = 'none';
+                defaultUserIcon.style.display = 'block';
+            }
+        }
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            updateAuthUI(session?.user || null);
+        });
+
+        // Toggle perfil section from header
+        document.getElementById('userProfileBtn').addEventListener('click', () => {
+            goToSection(3); // Section index 3 is Perfil
+        });
+
+    </script>
     <script>
         // Schedule data
         let schedule = [];
