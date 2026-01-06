@@ -2336,7 +2336,15 @@
 
         // Format date
         function formatDate(dateStr) {
-            const date = new Date(dateStr);
+            // If dateStr is just a date (YYYY-MM-DD), add noon time to avoid timezone issues
+            // new Date("2026-02-21") is interpreted as midnight UTC, which in Argentina (UTC-3) becomes Feb 20
+            let date;
+            if (dateStr.includes('T')) {
+                date = new Date(dateStr);
+            } else {
+                // Add T12:00:00 to ensure it stays on the correct day in any timezone
+                date = new Date(dateStr + 'T12:00:00');
+            }
             const months = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
                 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
             const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
