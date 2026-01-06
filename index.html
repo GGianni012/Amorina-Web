@@ -9,9 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -379,20 +380,153 @@
             max-width: 600px;
         }
 
-        /* Revista specific */
-        .revista-preview {
-            width: 280px;
-            height: 400px;
-            background: var(--cream);
-            margin-top: 40px;
-            position: relative;
-            box-shadow: 20px 20px 0 rgba(255, 255, 255, 0.1);
+        /* Revista Grid - Simpler horizontal layout */
+        .revista-grid {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--black);
+            gap: 20px;
+            margin-top: 60px;
+            padding: 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+
+        .revista-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .revista-card {
+            flex-shrink: 0;
+            width: 180px;
+            height: 260px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            scroll-snap-align: center;
+            position: relative;
+        }
+
+        .revista-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .revista-card:hover {
+            transform: scale(1.08) translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .revista-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            padding: 30px 10px 10px;
+            color: var(--cream);
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.5rem;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .revista-card:hover .revista-label {
+            opacity: 1;
+        }
+
+        /* PDF Reader Modal */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .pdf-modal.active {
+            display: flex;
+        }
+
+        .pdf-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: var(--cream);
+            cursor: pointer;
+            z-index: 10001;
+        }
+
+        .pdf-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: var(--cream);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pdf-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .pdf-paywall {
+            text-align: center;
+            padding: 40px;
+            background: var(--cream);
+            color: var(--black);
+        }
+
+        .pdf-paywall h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .pdf-paywall p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+        }
+
+        .pdf-paywall button {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 14px 32px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .revista-grid {
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .revista-card {
+                width: 140px;
+                height: 200px;
+            }
+
+            .revista-label {
+                font-size: 0.7rem;
+                padding: 20px 8px 8px;
+            }
         }
 
         /* Nosotros specific */
@@ -692,12 +826,13 @@
             background: var(--red);
             color: var(--white);
             border: none;
-            padding: 14px 32px;
+            padding: 20px 32px;
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1.1rem;
             letter-spacing: 1px;
             cursor: pointer;
             margin-top: 24px;
+            margin-bottom: 24px;
             width: 100%;
             transition: background 0.2s;
         }
@@ -706,9 +841,57 @@
             background: var(--red-dark);
         }
 
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f0eb;
+            border-radius: 8px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--black);
+            background: transparent;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        #qtyValue {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .total-price {
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+
         /* Sinopsis tab */
         .sinopsis-content {
             display: none;
+            padding: 10px 0 20px 0;
         }
 
         .sinopsis-content.active {
@@ -717,9 +900,70 @@
 
         .sinopsis-content p {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             line-height: 1.8;
             color: #333;
+            margin-bottom: 24px;
+        }
+
+        /* ==================== SOCIAL SHARE STORY TEMPLATE ==================== */
+        #storyTemplate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 1920px;
+            background: var(--cream);
+            z-index: -1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px;
+            box-sizing: border-box;
+            background-image: radial-gradient(#d3cbbd 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .story-logo {
+            margin-bottom: 80px;
+        }
+
+        .story-logo img {
+            height: 120px;
+            width: auto;
+        }
+
+        .story-poster {
+            width: 800px;
+            height: 1200px;
+            object-fit: cover;
+            border: 8px solid var(--black);
+            box-shadow: 40px 40px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 60px;
+        }
+
+        .story-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 6rem;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .story-meta {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        .story-footer {
+            margin-top: auto;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--red);
+            letter-spacing: 4px;
         }
 
         /* ==================== MOBILE STYLES ==================== */
@@ -861,6 +1105,57 @@
             #nosotros .section-title {
                 font-size: 3rem;
             }
+
+            /* Revista mobile improvements */
+            #revista {
+                padding: 60px 16px;
+            }
+
+            #revista .section-title {
+                font-size: 2rem;
+            }
+
+            #revista .section-subtitle {
+                font-size: 1.1rem;
+                text-align: center;
+                padding: 0 16px;
+            }
+
+            /* Nosotros mobile */
+            #nosotros {
+                padding: 60px 24px;
+            }
+
+            #nosotros p {
+                font-size: 1.1rem;
+            }
+
+            /* Perfil mobile */
+            #perfil {
+                padding: 60px 16px;
+            }
+
+            .profile-user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .pdf-container {
+                width: 95%;
+                height: 70vh;
+            }
+
+            .pdf-paywall {
+                padding: 24px 16px;
+            }
+
+            .pdf-paywall h3 {
+                font-size: 1.5rem;
+            }
+
+            .pdf-paywall p {
+                font-size: 1rem;
+            }
         }
 
         @media (min-width: 769px) {
@@ -918,10 +1213,36 @@
 
             <!-- REVISTA SECTION -->
             <section id="revista" class="section">
-                <h2 class="section-title">REVISTA</h2>
+                <h2 class="section-title">REVISTA TITA!</h2>
                 <p class="section-subtitle">Explorá nuestra revista digital con artículos sobre cine, cultura y más.</p>
-                <div class="revista-preview">PRÓXIMAMENTE</div>
+
+                <div class="revista-grid">
+                    <div class="revista-card" onclick="openRevista(1)">
+                        <img src="revistas/tita-1.jpg" alt="Tita! #1">
+                        <div class="revista-label">NÚMERO 1 · OCT '24</div>
+                    </div>
+                    <div class="revista-card" onclick="openRevista(2)">
+                        <img src="revistas/tita-2.jpg" alt="Tita! #2">
+                        <div class="revista-label">NÚMERO 2 · DIC '24</div>
+                    </div>
+                    <div class="revista-card" onclick="openRevista(3)">
+                        <img src="revistas/tita-3.jpg" alt="Tita! #3">
+                        <div class="revista-label">NÚMERO 3 · MAR '25</div>
+                    </div>
+                    <div class="revista-card" onclick="openRevista(4)">
+                        <img src="revistas/tita-4.jpg" alt="Tita! #4">
+                        <div class="revista-label">NÚMERO 4 · DIC '25</div>
+                    </div>
+                </div>
             </section>
+
+            <!-- PDF Reader Modal -->
+            <div id="pdfModal" class="pdf-modal">
+                <span class="pdf-close" onclick="closePdfModal()">&times;</span>
+                <div class="pdf-container" id="pdfContainer">
+                    <!-- PDF viewer or paywall will be inserted here -->
+                </div>
+            </div>
 
             <!-- NOSOTROS SECTION -->
             <section id="nosotros" class="section">
@@ -981,8 +1302,8 @@
                     <div class="meta" id="modalMeta"></div>
                 </div>
                 <div class="modal-share">
-                    <button onclick="shareWhatsApp()">📱 Compartir</button>
-                    <button onclick="copyLink()">📋 Copiar</button>
+                    <button onclick="shareStory()">📸 Compartir Story</button>
+                    <button onclick="copyLink()">📋 Copiar Link</button>
                 </div>
             </div>
             <div class="modal-content">
@@ -996,6 +1317,14 @@
                         <span class="modal-location-name">Amorina (caba)</span>
                         <a href="https://www.google.com/maps/search/Gorriti+5745" target="_blank">↗</a>
                     </div>
+
+                    <div class="quantity-selector">
+                        <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                        <span id="qtyValue">1</span>
+                        <button class="qty-btn" onclick="updateQty(1)">+</button>
+                    </div>
+                    <div class="total-price" id="totalPriceDisplay">Total: $5000</div>
+
                     <button class="modal-reserve-btn" onclick="openReservation()">RESERVAR ENTRADA</button>
                 </div>
                 <div id="sinopsisTab" class="sinopsis-content">
@@ -1003,6 +1332,17 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Hidden Story Template -->
+    <div id="storyTemplate">
+        <div class="story-logo">
+            <img src="logo-amorina.png" alt="Amorina">
+        </div>
+        <img id="storyPoster" class="story-poster" src="" alt="">
+        <h1 id="storyTitle" class="story-title">TITULO</h1>
+        <div id="storyMeta" class="story-meta">Director | Año</div>
+        <div class="story-footer">AMORINA.CLUB</div>
     </div>
 
     <script>
@@ -1089,8 +1429,25 @@
         // Load schedule
         async function loadSchedule() {
             try {
-                const response = await fetch('schedule.json');
-                schedule = await response.json();
+                // Fetch from Google Sheets via Supabase Edge Function
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/get-schedule`, {
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': SUPABASE_ANON_KEY
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch dynamic schedule');
+
+                const data = await response.json();
+
+                // Fallback if data is empty or contains an error message (internal reporting)
+                if (!Array.isArray(data) || data.length === 0 || (data.success === true && data.rowsFound <= 1)) {
+                    console.warn('Dynamic schedule is empty, falling back to local JSON...');
+                    throw new Error('Empty schedule');
+                }
+
+                schedule = data;
 
                 // Sort by showtime
                 schedule.sort((a, b) => new Date(a.showtime) - new Date(b.showtime));
@@ -1099,6 +1456,16 @@
                 setupScrollObserver();
             } catch (err) {
                 console.error('Error loading schedule:', err);
+                // Fallback to local schedule
+                try {
+                    const fallbackResponse = await fetch('schedule.json');
+                    schedule = await fallbackResponse.json();
+                    schedule.sort((a, b) => new Date(a.showtime) - new Date(b.showtime));
+                    renderTimeline();
+                    setupScrollObserver();
+                } catch (fallbackErr) {
+                    console.error('Fallback schedule also failed:', fallbackErr);
+                }
             }
         }
 
@@ -1282,11 +1649,18 @@
 
         // Open modal
         function openModal(movieTitle, showtime) {
+            // Reset quantity on open
+            ticketQuantity = 1;
+            document.getElementById('qtyValue').innerText = '1';
+
             currentMovie = schedule.find(m => m.title === movieTitle && m.showtime === showtime);
             if (!currentMovie) {
                 currentMovie = schedule.find(m => m.title === movieTitle);
             }
             if (!currentMovie) return;
+
+            const price = currentMovie.price || 5000;
+            document.getElementById('totalPriceDisplay').innerText = `Total: $${price}`;
 
             // Find all showtimes for this movie
             const allShowtimes = schedule.filter(m => m.title === currentMovie.title);
@@ -1363,24 +1737,175 @@
         }
 
 
+        let ticketQuantity = 1;
 
-        function openReservation() {
-            if (!selectedFuncion) {
-                alert('Seleccioná un horario primero');
-                return;
-            }
-            alert(`Reservar para ${currentMovie.title} - ${new Date(selectedFuncion).toLocaleString('es-AR')}`);
+        function updateQty(delta) {
+            ticketQuantity = Math.max(1, Math.min(10, ticketQuantity + delta));
+            document.getElementById('qtyValue').innerText = ticketQuantity;
+            const price = currentMovie?.price || 5000;
+            document.getElementById('totalPriceDisplay').innerText = `Total: $${price * ticketQuantity}`;
         }
 
-        function shareWhatsApp() {
-            const text = `Mirá ${currentMovie.title} en Amorina! 🎬`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        async function openReservation() {
+            if (!selectedFuncion) {
+                alert('Por favor, selecciona un horario primero.');
+                return;
+            }
+
+            // Check if user is logged in
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            if (!user) {
+                alert('Debes iniciar sesión para reservar una entrada.');
+                closeModal();
+                goToSection(3); // Go to Profile/Login section
+                return;
+            }
+
+            const reserveBtn = document.querySelector('.modal-reserve-btn');
+            const originalText = reserveBtn.innerText;
+            reserveBtn.innerText = 'PROCESANDO...';
+            reserveBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        showtime: {
+                            title: currentMovie.title,
+                            showtime: selectedFuncion,
+                            price: currentMovie.price || "5000",
+                            poster: currentMovie.poster
+                        },
+                        quantity: ticketQuantity,
+                        userEmail: user.email,
+                        userName: user.user_metadata.full_name || user.email.split('@')[0]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.initPoint) {
+                    window.location.href = data.initPoint;
+                } else {
+                    console.error('Error result:', data);
+                    alert('Error al iniciar el pago. ' + (data.error || 'Por favor intenta más tarde.'));
+                    reserveBtn.innerText = originalText;
+                    reserveBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Error de conexión. Intenta de nuevo.');
+                reserveBtn.innerText = originalText;
+                reserveBtn.disabled = false;
+            }
+        }
+
+        async function shareStory() {
+            if (!currentMovie) return;
+
+            const btn = document.querySelector('.modal-share button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Generando...';
+            btn.disabled = true;
+
+            // Populate template
+            document.getElementById('storyPoster').src = currentMovie.poster;
+            document.getElementById('storyTitle').textContent = currentMovie.title;
+            document.getElementById('storyMeta').textContent = `${currentMovie.director} | ${currentMovie.year}`;
+
+            // Wait for image to load
+            await new Promise(resolve => {
+                const img = document.getElementById('storyPoster');
+                if (img.complete) resolve();
+                else img.onload = resolve;
+            });
+
+            try {
+                const canvas = await html2canvas(document.getElementById('storyTemplate'), {
+                    scale: 1, // Full resolution
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `amorina-story-${currentMovie.title}.png`, { type: 'image/png' });
+
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: `Ver ${currentMovie.title} en Amorina`,
+                                text: `¡Vamos a ver ${currentMovie.title} en Amorina! 🎬`
+                            });
+                        } catch (err) {
+                            if (err.name !== 'AbortError') console.error('Error sharing:', err);
+                        }
+                    } else {
+                        // Fallback: Download
+                        const link = document.createElement('a');
+                        link.download = `amorina-story-${currentMovie.title}.png`;
+                        link.href = canvas.toDataURL();
+                        link.click();
+                        alert('Imagen descargada! Podés subirla a tu historia manualmtente.');
+                    }
+
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
+            } catch (error) {
+                console.error('Error generating story:', error);
+                alert('Hubo un error al generar la imagen.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function copyLink() {
             navigator.clipboard.writeText(window.location.href);
             alert('Link copiado!');
         }
+
+        // Revista PDF functions
+        const revistaData = {
+            1: { title: 'Tita! #1 - Octubre 2024', pdf: 'revistas/tita-1.pdf', totalPages: 20, freePages: 10 },
+            2: { title: 'Tita! #2 - Diciembre 2024', pdf: 'revistas/tita-2.pdf', totalPages: 24, freePages: 12 },
+            3: { title: 'Tita! #3 - Marzo 2025', pdf: 'revistas/tita-3.pdf', totalPages: 22, freePages: 11 },
+            4: { title: 'Tita! #4 - Diciembre 2025', pdf: 'revistas/tita-4.pdf', totalPages: 26, freePages: 13 },
+        };
+
+        function openRevista(num) {
+            const revista = revistaData[num];
+            if (!revista) return;
+
+            const modal = document.getElementById('pdfModal');
+            const container = document.getElementById('pdfContainer');
+
+            // Show full PDF (all pages free)
+            container.innerHTML = `
+                <iframe src="${revista.pdf}" title="${revista.title}"></iframe>
+            `;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePdfModal() {
+            const modal = document.getElementById('pdfModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close PDF modal on escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && document.getElementById('pdfModal').classList.contains('active')) {
+                closePdfModal();
+            }
+        });
 
         // Handle resize
         window.addEventListener('resize', () => {
