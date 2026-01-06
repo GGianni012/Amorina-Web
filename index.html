@@ -84,7 +84,8 @@
             z-index: 100;
             padding: 16px 24px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
+            /* Align items to the right (profile icon) */
             align-items: center;
             background: linear-gradient(180deg, rgba(250, 245, 240, 0.98) 0%, rgba(250, 245, 240, 0) 100%);
             pointer-events: none;
@@ -94,25 +95,20 @@
             pointer-events: auto;
         }
 
-        .logo-container {
+        .logo-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
             text-decoration: none;
         }
 
-        .logo-aquilea {
-            height: 40px;
+        .logo-center img {
+            height: 50px;
+            /* Adjust size as needed, previous was 40px */
             width: auto;
-        }
-
-        .logo-text {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
-            font-weight: 400;
-            font-style: italic;
-            color: var(--red);
-            letter-spacing: 1px;
         }
 
         .header-icon {
@@ -880,9 +876,8 @@
     <div class="app-container">
         <!-- Header -->
         <header class="header">
-            <a href="#cartelera" class="logo-container">
-                <img src="logo-aquilea.png" alt="Aquilea" class="logo-aquilea">
-                <span class="logo-text">Amorina</span>
+            <a href="#cartelera" class="logo-center">
+                <img src="logo-amorina.png" alt="Amorina">
             </a>
             <div class="header-icon" id="userProfileBtn">
                 <div id="userAvatar"
@@ -1367,10 +1362,7 @@
             document.getElementById('sinopsisTab').classList.toggle('active', tab === 'sinopsis');
         }
 
-        // Placeholder functions
-        function loginWithGoogle() {
-            alert('Login con Google - Próximamente');
-        }
+
 
         function openReservation() {
             if (!selectedFuncion) {
@@ -1408,6 +1400,22 @@
         // Init
         loadSchedule();
         setupSectionObserver();
+
+        // Date Indicator Fade Logic
+        const sectionsWrapper = document.querySelector('.sections-wrapper');
+        const dayIndicator = document.getElementById('dayIndicator');
+
+        sectionsWrapper.addEventListener('scroll', () => {
+            const scrollTop = sectionsWrapper.scrollTop;
+            const windowHeight = window.innerHeight;
+
+            // Fade out when scrolling past 30% of the first section to give it a nice transition
+            if (scrollTop > windowHeight * 0.3) {
+                dayIndicator.classList.add('hidden');
+            } else {
+                dayIndicator.classList.remove('hidden');
+            }
+        });
     </script>
 </body>
 
