@@ -2667,13 +2667,18 @@
                 if (isUserAdmin(user.email)) {
                     // Create purchase directly in database
                     const ticketCode = 'AMO-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+                    const userName = user.user_metadata?.full_name || user.email.split('@')[0];
+
+                    // Generate QR payload (same format as webhook)
+                    const shortDate = selectedFuncion.substring(0, 13);
+                    const qrPayload = `AMO|${ticketCode}|${currentMovie.title}|${shortDate}|${userName}|${user.email}`;
 
                     const { data: purchase, error } = await supabaseClient
                         .from('purchases')
                         .insert({
                             user_id: user.id,
                             user_email: user.email,
-                            user_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                            user_name: userName,
                             movie_title: currentMovie.title,
                             movie_poster: currentMovie.poster,
                             showtime: selectedFuncion,
@@ -2682,6 +2687,7 @@
                             total_amount: totalAmount,
                             discount_applied: discount,
                             ticket_code: ticketCode,
+                            qr_payload: qrPayload,
                             status: 'active',
                             payment_status: 'admin_bypass'
                         })
@@ -2689,6 +2695,29 @@
                         .single();
 
                     if (error) throw error;
+
+                    // Sync to Google Sheets (optional, won't block if it fails)
+                    try {
+                        await fetch(`${SUPABASE_URL}/functions/v1/sync-reservation`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            },
+                            body: JSON.stringify({
+                                ticket_code: ticketCode,
+                                movie_title: currentMovie.title,
+                                show_datetime: selectedFuncion,
+                                user_name: userName,
+                                user_email: user.email,
+                                quantity: ticketQuantity,
+                                total_amount: totalAmount,
+                                qr_payload: qrPayload
+                            })
+                        });
+                    } catch (syncErr) {
+                        console.warn('Sheet sync failed (non-blocking):', syncErr);
+                    }
 
                     alert(`✅ Reserva creada con éxito!\n\nCódigo: ${ticketCode}\n(Admin bypass - sin pago)`);
                     closeModal();
@@ -2838,10 +2867,10 @@
         // Load user profile from database
         async function loadUserProfile() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return null;
 
-                const { data: profile, error } = await supabase
+                const { data: profile, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('id', user.id)
@@ -2903,13 +2932,13 @@
             if (!ticketList) return;
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) {
                     ticketList.innerHTML = '<div class="ticket-empty">Iniciá sesión para ver tus entradas.</div>';
                     return;
                 }
 
-                const { data: purchases, error } = await supabase
+                const { data: purchases, error } = await supabaseClient
                     .from('purchases')
                     .select('*')
                     .eq('user_id', user.id)
@@ -3133,7 +3162,7 @@
         // Also load on page load if already logged in
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(async () => {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await supabaseClient.auth.getUser();
                 if (user) {
                     await loadUserProfile();
                     await loadUserTickets();
