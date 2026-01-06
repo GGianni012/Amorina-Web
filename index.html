@@ -598,8 +598,6 @@
             font-size: 1.1rem;
             letter-spacing: 1px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
             gap: 12px;
             margin-top: 24px;
             transition: transform 0.2s;
@@ -607,6 +605,137 @@
 
         .login-btn:hover {
             transform: scale(1.05);
+        }
+
+        /* Shipping Modal */
+        .shipping-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 11000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .shipping-modal.active {
+            display: flex;
+        }
+
+        .shipping-content {
+            background: var(--cream);
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            border: 2px solid var(--black);
+            box-shadow: 10px 10px 0 var(--black);
+            position: relative;
+        }
+
+        .shipping-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--black);
+        }
+
+        .shipping-option {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 2px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shipping-option:hover {
+            border-color: var(--red);
+        }
+
+        .shipping-option.selected {
+            border-color: var(--red);
+            background: rgba(201, 88, 111, 0.05);
+        }
+
+        .shipping-option input {
+            display: none;
+        }
+
+        .shipping-fields {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-bottom: 20px;
+        }
+
+        .shipping-fields.active {
+            max-height: 300px;
+        }
+
+        .shipping-input-group {
+            margin-bottom: 10px;
+        }
+
+        .shipping-input-group label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .shipping-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .shipping-quote {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid var(--green);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .shipping-quote.active {
+            display: block;
+        }
+
+        .shipping-total {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .shipping-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .shipping-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .shipping-btn:hover {
+            background: var(--red);
         }
 
         .login-btn svg {
@@ -1796,10 +1925,44 @@
                     </div>
                 </div>
 
-                <button class="revista-buy-btn" onclick="window.open('https://mpago.la/2S5kXp8', '_blank')">
+                <button class="revista-buy-btn" onclick="openShippingModal()">
                     ¡Conseguí el número físico ya!
                 </button>
             </section>
+
+            <!-- Shipping Modal -->
+            <div id="shippingModal" class="shipping-modal">
+                <div class="shipping-content">
+                    <span class="shipping-close" onclick="closeShippingModal()">&times;</span>
+                    <h2 class="shipping-title">¿Cómo querés recibirla?</h2>
+
+                    <div class="shipping-option selected" onclick="selectShipping('pickup')">
+                        <div class="shipping-chk"></div>
+                        <span>Retirar por Amorina (Sin cargo)</span>
+                    </div>
+
+                    <div class="shipping-option" onclick="selectShipping('delivery')">
+                        <div class="shipping-chk"></div>
+                        <span>Envío a domicilio</span>
+                    </div>
+
+                    <div id="shippingFields" class="shipping-fields">
+                        <div class="shipping-input-group">
+                            <label>Dirección Completa</label>
+                            <input type="text" id="shipAddress" placeholder="Calle 123, Piso, Depto">
+                        </div>
+                        <div class="shipping-input-group">
+                            <label>Código Postal</label>
+                            <input type="text" id="shipZip" placeholder="C1234" oninput="updateShippingQuote()">
+                        </div>
+                        <div id="shippingQuote" class="shipping-quote">
+                            Costo de envío sugerido: <span class="shipping-total">$0</span>
+                        </div>
+                    </div>
+
+                    <button class="shipping-btn" onclick="redirectToMagazinePayment()">CONTINUAR AL PAGO</button>
+                </div>
+            </div>
 
             <!-- PDF Reader Modal -->
             <div id="pdfModal" class="pdf-modal">
@@ -2961,15 +3124,83 @@
             }
         });
 
-        // Handle resize
-        window.addEventListener('resize', () => {
-            isMobile = window.innerWidth <= 768;
-        });
-
         // Close modal on escape
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeModal();
         });
+
+        // Shipping Modal Logic
+        let shippingType = 'pickup';
+        const BASE_MAGAZINE_PRICE = 15000; // Assuming a base price for the magazine
+
+        function openShippingModal() {
+            document.getElementById('shippingModal').classList.add('active');
+        }
+
+        function closeShippingModal() {
+            document.getElementById('shippingModal').classList.remove('active');
+        }
+
+        function selectShipping(type) {
+            shippingType = type;
+            const options = document.querySelectorAll('.shipping-option');
+            options[0].classList.toggle('selected', type === 'pickup');
+            options[1].classList.toggle('selected', type === 'delivery');
+
+            const fields = document.getElementById('shippingFields');
+            fields.classList.toggle('active', type === 'delivery');
+
+            updateShippingQuote();
+        }
+
+        function updateShippingQuote() {
+            const quoteDiv = document.getElementById('shippingQuote');
+            if (shippingType === 'pickup') {
+                quoteDiv.classList.remove('active');
+                return;
+            }
+
+            const zip = document.getElementById('shipZip').value.trim().toUpperCase();
+            if (zip.length < 2) {
+                quoteDiv.classList.remove('active');
+                return;
+            }
+
+            // Estimate distance based on first digit of ZIP
+            // Logic: Base 8000 + 1000 every 100km
+            let distanceKm = 0;
+            const digit = zip.match(/\d/);
+            const firstDigit = digit ? parseInt(digit[0]) : 1;
+
+            if (firstDigit === 1) distanceKm = 30; // CABA/GBA
+            else if (firstDigit === 2) distanceKm = 300; // BA Interior
+            else if (firstDigit === 3) distanceKm = 400; // Mesop/Litoral
+            else if (firstDigit === 4) distanceKm = 700; // Cordoba/SL
+            else if (firstDigit === 5) distanceKm = 1000; // Cuyo
+            else if (firstDigit === 6 || firstDigit === 7) distanceKm = 1500; // NOA
+            else distanceKm = 2000; // Patagonia
+
+            const shippingCost = 8000 + (Math.floor(distanceKm / 100) * 1000);
+
+            quoteDiv.querySelector('.shipping-total').textContent = `$${shippingCost.toLocaleString('es-AR')}`;
+            quoteDiv.classList.add('active');
+        }
+
+        function redirectToMagazinePayment() {
+            if (shippingType === 'delivery') {
+                const address = document.getElementById('shipAddress').value;
+                const zip = document.getElementById('shipZip').value;
+                if (!address || !zip) {
+                    alert('Por favor completa los datos de envío');
+                    return;
+                }
+            }
+
+            // For now, redirect to the provided static link
+            // In a real scenario, this would generate a preference with the calculated shipping
+            window.open('https://mpago.la/2S5kXp8', '_blank');
+            closeShippingModal();
+        }
 
         // Close modal on overlay click
         document.getElementById('movieModal').addEventListener('click', e => {
