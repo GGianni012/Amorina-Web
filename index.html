@@ -1015,11 +1015,11 @@
         const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhempudHZyeGZ5eGxpbmt1aXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MjUwMDQsImV4cCI6MjA4MzIwMTAwNH0.otXE48RY5EWwjTXzDUvncLrJO7ujfU5RJTj6C--ouy4';
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Auth Logic
         async function loginWithGoogle() {
-            const { error } = await supabase.auth.signInWithOAuth({
+            const { error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: window.location.origin
@@ -1029,7 +1029,7 @@
         }
 
         async function logout() {
-            const { error } = await supabase.auth.signOut();
+            const { error } = await supabaseClient.auth.signOut();
             if (error) console.error('Error logging out:', error.message);
         }
 
@@ -1074,7 +1074,7 @@
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             updateAuthUI(session?.user || null);
         });
 
