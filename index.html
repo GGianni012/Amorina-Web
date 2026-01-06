@@ -370,6 +370,25 @@
             padding: 80px 24px;
         }
 
+        .revista-buy-btn {
+            margin-top: 40px;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 16px 32px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .revista-buy-btn:hover {
+            background: var(--red-dark);
+            transform: translateY(-4px);
+        }
+
         #nosotros {
             background: var(--red);
             color: var(--white);
@@ -1775,6 +1794,10 @@
                         <div class="revista-label">NÚMERO 4 · DIC '25</div>
                     </div>
                 </div>
+
+                <button class="revista-buy-btn" onclick="window.open('https://mpago.la/2S5kXp8', '_blank')">
+                    ¡Conseguí el número físico ya!
+                </button>
             </section>
 
             <!-- PDF Reader Modal -->
@@ -1798,9 +1821,11 @@
             <section id="perfil" class="section">
                 <h2 class="section-title">MI PERFIL</h2>
 
-                <div id="loggedOutView">
+                <div id="loggedOutView"
+                    style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%;">
                     <p class="section-subtitle">Accedé a tu historial de películas y nivel de suscripción.</p>
-                    <button class="login-btn" onclick="loginWithGoogle()">
+                    <button class="login-btn" onclick="loginWithGoogle()"
+                        style="margin-left: auto; margin-right: auto;">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
