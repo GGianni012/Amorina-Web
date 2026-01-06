@@ -2347,12 +2347,16 @@
             };
         }
 
-        // Group movies by day
+        // Group movies by day (using local timezone)
         function groupByDay(movies) {
             const groups = {};
             movies.forEach(movie => {
                 const date = new Date(movie.showtime);
-                const dayKey = date.toISOString().split('T')[0];
+                // Use local date components instead of toISOString() which converts to UTC
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dayKey = `${year}-${month}-${day}`;
                 if (!groups[dayKey]) {
                     groups[dayKey] = [];
                 }
