@@ -2665,8 +2665,12 @@
             try {
                 // Check if admin - bypass MercadoPago
                 if (isUserAdmin(user.email)) {
-                    // Create purchase directly in database
-                    const ticketCode = 'AMO-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+                    // Generate 6-character alphanumeric ticket code (compatible with staff app)
+                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                    let ticketCode = '';
+                    for (let i = 0; i < 6; i++) {
+                        ticketCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
                     const userName = user.user_metadata?.full_name || user.email.split('@')[0];
 
                     // Generate QR payload (same format as webhook)
