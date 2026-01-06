@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a0a">
     <title>Amorina Cine Bar</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="amorina-icon.png">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Amorina Cine Bar - Un espacio para el cine independiente, de autor y clásicos en el corazón de Palermo.">
+    <meta name="keywords" content="cine bar, palermo, cine independiente, cartelera, amorina, tita revista">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://amorina.club/">
+    <meta property="og:title" content="Amorina Cine Bar">
+    <meta property="og:description" content="Un espacio para el cine independiente, de autor y clásicos.">
+    <meta property="og:image" content="amorina-icon.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://amorina.club/">
+    <meta property="twitter:title" content="Amorina Cine Bar">
+    <meta property="twitter:description" content="Un espacio para el cine independiente, de autor y clásicos.">
+    <meta property="twitter:image" content="amorina-icon.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -1426,13 +1449,17 @@
                 overflow-y: hidden;
                 scroll-snap-type: x mandatory;
                 width: 100%;
+                -webkit-overflow-scrolling: touch;
             }
 
             .section {
+                width: 100%;
                 min-width: 100vw;
                 min-height: 100vh;
                 min-height: 100dvh;
                 scroll-snap-align: start;
+                overflow-x: hidden;
+                position: relative;
             }
 
             .nav-dots {
@@ -1476,10 +1503,12 @@
                 flex-direction: column;
                 overflow-x: hidden;
                 overflow-y: auto;
-                scroll-snap-type: y mandatory;
-                padding: 80px 16px 100px;
-                gap: 16px;
-                align-items: stretch;
+                scroll-snap-type: none;
+                /* Disable scroll snap for smoother vertical scroll on mobile */
+                padding: 100px 16px 120px;
+                gap: 24px;
+                align-items: center;
+                width: 100%;
             }
 
             .day-separator {
@@ -1557,26 +1586,45 @@
 
             /* Revista mobile improvements */
             #revista {
-                padding: 60px 16px;
+                padding: 100px 16px 120px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                width: 100%;
+                overflow-x: hidden;
             }
 
             #revista .section-title {
                 font-size: 2rem;
+                width: 100%;
             }
 
             #revista .section-subtitle {
                 font-size: 1.1rem;
                 text-align: center;
                 padding: 0 16px;
+                margin-bottom: 20px;
+                width: 100%;
+                max-width: 400px;
             }
 
             /* Nosotros mobile */
             #nosotros {
-                padding: 60px 24px;
+                padding: 100px 24px 120px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
             }
 
             #nosotros p {
                 font-size: 1.1rem;
+                width: 100%;
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
             }
 
             /* Perfil mobile */
