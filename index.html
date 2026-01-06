@@ -2664,7 +2664,7 @@
 
             try {
                 // Check if admin - bypass MercadoPago
-                if (isUserAdmin()) {
+                if (isUserAdmin(user.email)) {
                     // Create purchase directly in database
                     const ticketCode = 'AMO-' + Math.random().toString(36).substr(2, 4).toUpperCase();
 
@@ -2958,7 +2958,16 @@
         }
 
         // Check if user is admin (can skip payment)
-        function isUserAdmin() {
+        // Hardcoded admin emails that can bypass payment
+        const ADMIN_EMAILS = ['giannirolontoro@gmail.com'];
+
+        function isUserAdmin(email = null) {
+            // Check hardcoded admin emails first
+            const emailToCheck = email || userProfile?.email;
+            if (emailToCheck && ADMIN_EMAILS.includes(emailToCheck.toLowerCase())) {
+                return true;
+            }
+            // Fallback to database is_admin flag
             return userProfile?.is_admin === true;
         }
 
