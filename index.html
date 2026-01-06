@@ -685,7 +685,8 @@
         .ticket-section {
             width: 100%;
             max-width: 500px;
-            margin-top: 40px;
+            margin: 40px auto 0;
+            text-align: center;
         }
 
         .ticket-section-title {
@@ -849,6 +850,167 @@
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1rem;
             cursor: pointer;
+        }
+
+        /* Membership Modal */
+        .membership-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .membership-modal.active {
+            display: flex;
+        }
+
+        .membership-content {
+            background: var(--cream);
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .membership-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--black);
+        }
+
+        .membership-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--black);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .membership-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .payment-option:hover {
+            border-color: var(--red);
+        }
+
+        .payment-option.selected {
+            border-color: var(--red);
+            background: rgba(201, 88, 111, 0.1);
+        }
+
+        .payment-option-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #999;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .payment-option.selected .payment-option-radio {
+            border-color: var(--red);
+        }
+
+        .payment-option.selected .payment-option-radio::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            background: var(--red);
+            border-radius: 50%;
+        }
+
+        .payment-option-info {
+            flex: 1;
+        }
+
+        .payment-option-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            color: var(--black);
+        }
+
+        .discount-badge {
+            background: var(--green);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .payment-option-price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--red);
+        }
+
+        .payment-option-savings {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.9rem;
+            color: var(--green);
+            font-style: italic;
+        }
+
+        .membership-pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .membership-pay-btn:hover {
+            background: var(--red-dark);
+        }
+
+        .membership-note {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.9rem;
+            color: #888;
+            text-align: center;
+            margin-top: 12px;
         }
 
         /* ==================== MOVIE MODAL ==================== */
@@ -1602,7 +1764,7 @@
 
                     <div class="subscription-cards">
                         <div class="sub-card">
-                            <div class="sub-card-title">TU SUSCRIPCIÓN</div>
+                            <div class="sub-card-title">TU NIVEL</div>
                             <div class="sub-card-price free">GRATIS</div>
                             <ul class="sub-card-benefits">
                                 <li>Acceso a la cartelera</li>
@@ -1620,18 +1782,18 @@
                                 <li>Newsletter exclusivo</li>
                                 <li>50% revista Tita!</li>
                             </ul>
-                            <button class="sub-card-btn" onclick="alert('Próximamente')">SUSCRIBIRSE</button>
+                            <button class="sub-card-btn" onclick="openMembershipModal('aquilea')">ASOCIARSE</button>
                         </div>
                         <div class="sub-card">
                             <div class="sub-card-title">SOCIO HONORÍFICO</div>
                             <div class="sub-card-price">$100.000/mes</div>
                             <ul class="sub-card-benefits">
-                                <li>20% descuento en entradas</li>
+                                <li>80% descuento en entradas</li>
                                 <li>1 entrada gratis por mes</li>
                                 <li>Eventos privados</li>
                                 <li>Revista Tita! completa</li>
                             </ul>
-                            <button class="sub-card-btn" onclick="alert('Próximamente')">SUSCRIBIRSE</button>
+                            <button class="sub-card-btn" onclick="openMembershipModal('honorifico')">ASOCIARSE</button>
                         </div>
                     </div>
                 </div>
@@ -1648,7 +1810,7 @@
 
                     <div class="subscription-cards">
                         <div class="sub-card">
-                            <div class="sub-card-title">TU SUSCRIPCIÓN</div>
+                            <div class="sub-card-title">TU NIVEL</div>
                             <div class="sub-card-price free">GRATIS</div>
                             <ul class="sub-card-benefits">
                                 <li>Acceso a la cartelera</li>
@@ -1666,18 +1828,18 @@
                                 <li>Newsletter exclusivo</li>
                                 <li>50% revista Tita!</li>
                             </ul>
-                            <button class="sub-card-btn" onclick="alert('Próximamente')">SUSCRIBIRSE</button>
+                            <button class="sub-card-btn" onclick="openMembershipModal('aquilea')">ASOCIARSE</button>
                         </div>
                         <div class="sub-card">
                             <div class="sub-card-title">SOCIO HONORÍFICO</div>
                             <div class="sub-card-price">$100.000/mes</div>
                             <ul class="sub-card-benefits">
-                                <li>20% descuento en entradas</li>
+                                <li>80% descuento en entradas</li>
                                 <li>1 entrada gratis por mes</li>
                                 <li>Eventos privados</li>
                                 <li>Revista Tita! completa</li>
                             </ul>
-                            <button class="sub-card-btn" onclick="alert('Próximamente')">SUSCRIBIRSE</button>
+                            <button class="sub-card-btn" onclick="openMembershipModal('honorifico')">ASOCIARSE</button>
                         </div>
                     </div>
 
@@ -1700,6 +1862,39 @@
                     <div class="qr-short-code" id="qrShortCode">AMO-XXXX</div>
                     <div class="qr-instructions">Mostrá este código en la puerta del cine</div>
                     <button class="qr-close" onclick="closeQrModal()">CERRAR</button>
+                </div>
+            </div>
+
+            <!-- Membership Modal -->
+            <div class="membership-modal" id="membershipModal">
+                <div class="membership-content">
+                    <button class="membership-close" onclick="closeMembershipModal()">×</button>
+                    <h2 class="membership-title" id="membershipTitle">ASOCIATE</h2>
+                    <p class="membership-subtitle" id="membershipSubtitle">Elegí tu plan de pago</p>
+
+                    <div class="payment-options">
+                        <div class="payment-option" onclick="selectPaymentOption('monthly')">
+                            <div class="payment-option-radio" id="radioMonthly"></div>
+                            <div class="payment-option-info">
+                                <div class="payment-option-title">MENSUAL</div>
+                                <div class="payment-option-price" id="monthlyPrice">$20.000/mes</div>
+                            </div>
+                        </div>
+                        <div class="payment-option selected" onclick="selectPaymentOption('annual')">
+                            <div class="payment-option-radio" id="radioAnnual"></div>
+                            <div class="payment-option-info">
+                                <div class="payment-option-title">ANUAL <span class="discount-badge">20% OFF</span>
+                                </div>
+                                <div class="payment-option-price" id="annualPrice">$192.000/año</div>
+                                <div class="payment-option-savings" id="annualSavings">Ahorrás $48.000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="membership-pay-btn" onclick="processMembershipPayment()">
+                        PAGAR CON MERCADOPAGO
+                    </button>
+                    <p class="membership-note">Podés cancelar en cualquier momento</p>
                 </div>
             </div>
         </div>
@@ -2397,6 +2592,122 @@
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }
+
+        // ==================== MEMBERSHIP SYSTEM ====================
+        const membershipPlans = {
+            aquilea: {
+                name: 'Socio Aquilea',
+                monthlyPrice: 20000,
+                annualPrice: 192000, // 20% off (240000 * 0.8)
+                discount: 10 // % off ticket price
+            },
+            honorifico: {
+                name: 'Socio Honorífico',
+                monthlyPrice: 100000,
+                annualPrice: 960000, // 20% off (1200000 * 0.8)
+                discount: 80 // % off ticket price
+            }
+        };
+
+        let currentMembershipPlan = null;
+        let currentPaymentInterval = 'annual'; // 'monthly' or 'annual'
+
+        function openMembershipModal(planType) {
+            const plan = membershipPlans[planType];
+            if (!plan) return;
+
+            currentMembershipPlan = planType;
+
+            const modal = document.getElementById('membershipModal');
+            const title = document.getElementById('membershipTitle');
+            const monthlyPrice = document.getElementById('monthlyPrice');
+            const annualPrice = document.getElementById('annualPrice');
+            const annualSavings = document.getElementById('annualSavings');
+
+            title.textContent = `ASOCIATE: ${plan.name.toUpperCase()}`;
+            monthlyPrice.textContent = `$${plan.monthlyPrice.toLocaleString('es-AR')}/mes`;
+            annualPrice.textContent = `$${plan.annualPrice.toLocaleString('es-AR')}/año`;
+
+            const yearlySavings = (plan.monthlyPrice * 12) - plan.annualPrice;
+            annualSavings.textContent = `Ahorrás $${yearlySavings.toLocaleString('es-AR')}`;
+
+            // Reset selection to annual
+            selectPaymentOption('annual');
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMembershipModal() {
+            const modal = document.getElementById('membershipModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            currentMembershipPlan = null;
+        }
+
+        function selectPaymentOption(interval) {
+            currentPaymentInterval = interval;
+
+            const options = document.querySelectorAll('.payment-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            const selectedOption = interval === 'monthly' ? options[0] : options[1];
+            selectedOption.classList.add('selected');
+        }
+
+        async function processMembershipPayment() {
+            if (!currentMembershipPlan) return;
+
+            const plan = membershipPlans[currentMembershipPlan];
+            const isAnnual = currentPaymentInterval === 'annual';
+            const amount = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+            const description = `${plan.name} - ${isAnnual ? 'Anual' : 'Mensual'}`;
+
+            const btn = document.querySelector('.membership-pay-btn');
+            btn.textContent = 'PROCESANDO...';
+            btn.disabled = true;
+
+            try {
+                // Call the subscription Edge Function
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/create-subscription`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        plan_type: currentMembershipPlan,
+                        interval: currentPaymentInterval,
+                        amount: amount,
+                        description: description,
+                        user_email: document.getElementById('perfilEmail')?.textContent || '',
+                        user_name: document.getElementById('perfilName')?.textContent || ''
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.init_point) {
+                    // Redirect to MercadoPago
+                    window.location.href = data.init_point;
+                } else {
+                    throw new Error(data.error || 'Error al crear la suscripción');
+                }
+            } catch (error) {
+                console.error('Membership payment error:', error);
+                alert('Error al procesar el pago. Intentá de nuevo.');
+                btn.textContent = 'PAGAR CON MERCADOPAGO';
+                btn.disabled = false;
+            }
+        }
+
+        // Close membership modal on escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && document.getElementById('membershipModal').classList.contains('active')) {
+                closeMembershipModal();
+            }
+        });
 
         // Load tickets when user logs in
         const originalUpdateUI = window.updateUI;
