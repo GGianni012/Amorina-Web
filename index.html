@@ -2702,7 +2702,7 @@
 
                     // Sync to Google Sheets (optional, won't block if it fails)
                     try {
-                        await fetch(`${SUPABASE_URL}/functions/v1/sync-reservation`, {
+                        const syncResponse = await fetch(`${SUPABASE_URL}/functions/v1/sync-reservation`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2719,6 +2719,11 @@
                                 qr_payload: qrPayload
                             })
                         });
+                        const syncResult = await syncResponse.json();
+                        console.log('Sync result:', syncResult);
+                        if (!syncResult.success) {
+                            console.error('Sheet sync error:', syncResult);
+                        }
                     } catch (syncErr) {
                         console.warn('Sheet sync failed (non-blocking):', syncErr);
                     }
