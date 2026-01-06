@@ -1,0 +1,58 @@
+name: Update Schedule Daily
+
+on:
+  schedule:
+    # Run every day at 6:00 AM Argentina time (9:00 UTC)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch schedule from Google Sheets
+        run: |
+          curl -s "${{ secrets.SUPABASE_URL }}/functions/v1/get-schedule" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -o schedule_new.json
+          
+          # Check if the response is valid JSON and not empty
+          if jq empty schedule_new.json 2>/dev/null && [ -s schedule_new.json ]; then
+            # Check if it's an array with items
+            COUNT=$(jq 'length' schedule_new.json)
+            if [ "$COUNT" -gt 0 ]; then
+              mv schedule_new.json schedule.json
+              echo "✅ Schedule updated with $COUNT movies"
+            else
+              echo "⚠️ Empty schedule returned, keeping existing file"
+              rm schedule_new.json
+            fi
+          else
+            echo "❌ Invalid JSON response, keeping existing file"
+            rm -f schedule_new.json
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet schedule.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add schedule.json
+          git commit -m "chore: auto-update schedule from Google Sheets [skip ci]"
+          git push

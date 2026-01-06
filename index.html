@@ -2037,45 +2037,54 @@
         let selectedFuncion = null;
         let isMobile = window.innerWidth <= 768;
 
-        // Load schedule
+        // Load schedule - Local JSON first (instant), Edge Function fallback
         async function loadSchedule() {
             try {
-                // Fetch from Google Sheets via Supabase Edge Function
-                const response = await fetch(`${SUPABASE_URL}/functions/v1/get-schedule`, {
-                    headers: {
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'apikey': SUPABASE_ANON_KEY
-                    }
-                });
+                // Try local schedule.json first (updated daily by GitHub Action)
+                const localResponse = await fetch('schedule.json');
+                if (!localResponse.ok) throw new Error('Local schedule not found');
 
-                if (!response.ok) throw new Error('Failed to fetch dynamic schedule');
-
-                const data = await response.json();
-
-                // Fallback if data is empty or contains an error message (internal reporting)
-                if (!Array.isArray(data) || data.length === 0 || (data.success === true && data.rowsFound <= 1)) {
-                    console.warn('Dynamic schedule is empty, falling back to local JSON...');
-                    throw new Error('Empty schedule');
+                const data = await localResponse.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error('Empty local schedule');
                 }
 
                 schedule = data;
-
-                // Sort by showtime
                 schedule.sort((a, b) => new Date(a.showtime) - new Date(b.showtime));
 
                 renderTimeline();
                 setupScrollObserver();
-            } catch (err) {
-                console.error('Error loading schedule:', err);
-                // Fallback to local schedule
+                console.log('✅ Loaded schedule from local JSON');
+
+            } catch (localErr) {
+                console.warn('Local schedule unavailable, fetching from Google Sheets...', localErr);
+
+                // Fallback to Edge Function (slower but real-time)
                 try {
-                    const fallbackResponse = await fetch('schedule.json');
-                    schedule = await fallbackResponse.json();
+                    const response = await fetch(`${SUPABASE_URL}/functions/v1/get-schedule`, {
+                        headers: {
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        }
+                    });
+
+                    if (!response.ok) throw new Error('Failed to fetch dynamic schedule');
+
+                    const data = await response.json();
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        throw new Error('Empty dynamic schedule');
+                    }
+
+                    schedule = data;
                     schedule.sort((a, b) => new Date(a.showtime) - new Date(b.showtime));
+
                     renderTimeline();
                     setupScrollObserver();
-                } catch (fallbackErr) {
-                    console.error('Fallback schedule also failed:', fallbackErr);
+                    console.log('✅ Loaded schedule from Edge Function');
+
+                } catch (dynamicErr) {
+                    console.error('❌ Both schedule sources failed:', dynamicErr);
                 }
             }
         }
