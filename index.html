@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Amorina Cine Bar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --red: #c9586f;
+            --red-dark: #a04558;
+            --cream: #faf5f0;
+            --cream-dark: #f0e8e0;
+            --black: #1a1a1a;
+            --white: #ffffff;
+            --green: #5d8a66;
+            --green-light: #7aa882;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--black);
+        }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        /* Desktop: sections vertical, movies horizontal */
+        /* Mobile: sections horizontal, movies vertical */
+
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* Desktop: Vertical section scrolling */
+        .sections-wrapper {
+            height: 100%;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+
+        .sections-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .section {
+            min-height: 100vh;
+            min-height: 100dvh;
+            scroll-snap-align: start;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(250, 245, 240, 0.98) 0%, rgba(250, 245, 240, 0) 100%);
+            pointer-events: none;
+        }
+
+        .header>* {
+            pointer-events: auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-aquilea {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            font-style: italic;
+            color: var(--red);
+            letter-spacing: 1px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--black);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .header-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ==================== FLOATING DAY INDICATOR ==================== */
+        .day-indicator {
+            position: fixed;
+            top: 80px;
+            left: 24px;
+            z-index: 90;
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 20px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            box-shadow: 4px 4px 0 var(--red);
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .day-indicator.hidden {
+            transform: translateY(-100px);
+            opacity: 0;
+        }
+
+        /* ==================== NAVIGATION DOTS (Desktop) ==================== */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border: 2px solid var(--black);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .nav-dot.active {
+            background: var(--red);
+            border-color: var(--red);
+            transform: scale(1.3);
+        }
+
+        .nav-dot:hover {
+            border-color: var(--red);
+        }
+
+        /* ==================== CARTELERA SECTION ==================== */
+        #cartelera {
+            background: var(--cream);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Movies timeline - HORIZONTAL scroll on DESKTOP */
+        .movies-timeline {
+            flex: 1;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            padding: 100px 50vw 40px 24px;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .movies-timeline::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Day separator in timeline */
+        .day-separator {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            scroll-snap-align: start;
+            min-width: 120px;
+        }
+
+        .day-separator-date {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            color: var(--red);
+            line-height: 1;
+        }
+
+        .day-separator-month {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--black);
+            opacity: 0.6;
+        }
+
+        .day-separator-weekday {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: var(--black);
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .movie-card {
+            flex-shrink: 0;
+            width: 280px;
+            scroll-snap-align: start;
+            background: var(--white);
+            border: 2px solid var(--black);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 8px 8px 0 var(--black);
+        }
+
+        .movie-time-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--black);
+            color: var(--white);
+            padding: 6px 12px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            z-index: 2;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .movie-info {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .movie-director {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .movie-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+
+        .movie-meta {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .movie-footer {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .movie-price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            color: var(--black);
+        }
+
+        .movie-btn {
+            background: var(--green);
+            border: none;
+            padding: 8px 16px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .movie-btn:hover {
+            background: var(--green-light);
+        }
+
+        /* ==================== OTHER SECTIONS ==================== */
+        #revista {
+            background: var(--black);
+            color: var(--cream);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+        }
+
+        #nosotros {
+            background: var(--red);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 48px;
+        }
+
+        #perfil {
+            background: var(--cream-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 24px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 4rem;
+            letter-spacing: 4px;
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            opacity: 0.8;
+            max-width: 600px;
+        }
+
+        /* Revista specific */
+        .revista-preview {
+            width: 280px;
+            height: 400px;
+            background: var(--cream);
+            margin-top: 40px;
+            position: relative;
+            box-shadow: 20px 20px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        /* Nosotros specific */
+        #nosotros .section-title {
+            font-size: 5rem;
+        }
+
+        #nosotros p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            max-width: 700px;
+            margin-top: 24px;
+        }
+
+        /* Perfil specific */
+        .login-btn {
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            padding: 16px 40px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .login-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ==================== MOVIE MODAL ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--cream);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            position: relative;
+            border: 3px solid var(--black);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .modal-poster {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-poster img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border: 2px solid var(--black);
+        }
+
+        .modal-poster-info {
+            margin-top: 16px;
+        }
+
+        .modal-poster-info .director {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .modal-poster-info .title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            margin: 4px 0;
+        }
+
+        .modal-poster-info .meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .modal-share {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .modal-share button {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-content {
+            padding: 24px;
+            border-left: 1px dashed #ccc;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .modal-tab {
+            padding: 10px 20px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-tab.active {
+            background: var(--green);
+        }
+
+        /* Funciones tab */
+        .funciones-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .funcion-day {
+            text-align: center;
+        }
+
+        .funcion-day-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .funcion-day-date {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .funcion-time {
+            background: var(--green);
+            padding: 6px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .funcion-time:hover {
+            background: var(--green-light);
+        }
+
+        .funcion-time.selected {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .modal-location {
+            margin-top: 24px;
+            padding: 12px;
+            background: var(--white);
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-location-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-location-name::before {
+            content: '■';
+            color: var(--black);
+        }
+
+        .modal-reserve-btn {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 14px 32px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 24px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .modal-reserve-btn:hover {
+            background: var(--red-dark);
+        }
+
+        /* Sinopsis tab */
+        .sinopsis-content {
+            display: none;
+        }
+
+        .sinopsis-content.active {
+            display: block;
+        }
+
+        .sinopsis-content p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* ==================== MOBILE STYLES ==================== */
+        @media (max-width: 768px) {
+
+            /* Mobile: Sections are horizontal */
+            .sections-wrapper {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scroll-snap-type: x mandatory;
+                width: 100%;
+            }
+
+            .section {
+                min-width: 100vw;
+                min-height: 100vh;
+                min-height: 100dvh;
+                scroll-snap-align: start;
+            }
+
+            .nav-dots {
+                display: none;
+            }
+
+            /* Mobile bottom nav for sections */
+            .mobile-section-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--black);
+                z-index: 100;
+                padding: 12px 0 max(12px, env(safe-area-inset-bottom));
+            }
+
+            .mobile-section-nav a {
+                flex: 1;
+                text-align: center;
+                color: #888;
+                text-decoration: none;
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+                padding: 8px;
+            }
+
+            .mobile-section-nav a.active {
+                color: var(--red);
+            }
+
+            /* Cartelera mobile adjustments */
+            #cartelera {
+                padding-bottom: 80px;
+            }
+
+            /* Movies: VERTICAL scroll on MOBILE */
+            .movies-timeline {
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: auto;
+                scroll-snap-type: y mandatory;
+                padding: 80px 16px 100px;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .day-separator {
+                flex-direction: row;
+                padding: 16px 0;
+                min-width: unset;
+                justify-content: flex-start;
+                gap: 12px;
+                scroll-snap-align: start;
+            }
+
+            .day-separator-date {
+                font-size: 2rem;
+            }
+
+            .day-separator-weekday {
+                margin-top: 0;
+            }
+
+            .movie-card {
+                width: 100%;
+                scroll-snap-align: start;
+            }
+
+            .movie-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .movie-poster {
+                height: 300px;
+            }
+
+            .day-indicator {
+                top: 70px;
+                left: 16px;
+                padding: 8px 14px;
+                font-size: 0.9rem;
+            }
+
+            /* Modal mobile */
+            .modal {
+                grid-template-columns: 1fr;
+                max-height: 100vh;
+                height: 100%;
+                border: none;
+            }
+
+            .modal-poster {
+                padding: 16px;
+            }
+
+            .modal-poster img {
+                max-height: 300px;
+                width: auto;
+                margin: 0 auto;
+            }
+
+            .modal-content {
+                border-left: none;
+                border-top: 1px dashed #ccc;
+            }
+
+            .funciones-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            #nosotros .section-title {
+                font-size: 3rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-section-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <a href="#cartelera" class="logo-container">
+                <img src="logo-aquilea.png" alt="Aquilea" class="logo-aquilea">
+                <span class="logo-text">Amorina</span>
+            </a>
+            <div class="header-icon" onclick="goToSection(3)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+            </div>
+        </header>
+
+        <!-- Floating day indicator -->
+        <div class="day-indicator" id="dayIndicator">HOY</div>
+
+        <!-- Navigation dots (desktop) -->
+        <nav class="nav-dots">
+            <div class="nav-dot active" onclick="goToSection(0)" title="Cartelera"></div>
+            <div class="nav-dot" onclick="goToSection(1)" title="Revista"></div>
+            <div class="nav-dot" onclick="goToSection(2)" title="Nosotros"></div>
+            <div class="nav-dot" onclick="goToSection(3)" title="Mi Perfil"></div>
+        </nav>
+
+        <!-- Mobile bottom nav -->
+        <nav class="mobile-section-nav">
+            <a href="#" class="active" onclick="goToSection(0); return false;">CARTELERA</a>
+            <a href="#" onclick="goToSection(1); return false;">REVISTA</a>
+            <a href="#" onclick="goToSection(2); return false;">NOSOTROS</a>
+            <a href="#" onclick="goToSection(3); return false;">PERFIL</a>
+        </nav>
+
+        <!-- Sections wrapper -->
+        <div class="sections-wrapper" id="sectionsWrapper">
+            <!-- CARTELERA SECTION -->
+            <section id="cartelera" class="section">
+                <div class="movies-timeline" id="moviesTimeline"></div>
+            </section>
+
+            <!-- REVISTA SECTION -->
+            <section id="revista" class="section">
+                <h2 class="section-title">REVISTA</h2>
+                <p class="section-subtitle">Explorá nuestra revista digital con artículos sobre cine, cultura y más.</p>
+                <div class="revista-preview">PRÓXIMAMENTE</div>
+            </section>
+
+            <!-- NOSOTROS SECTION -->
+            <section id="nosotros" class="section">
+                <h2 class="section-title">NOSOTROS</h2>
+                <p class="section-subtitle">Un espacio para el cine independiente y de autor.</p>
+                <p>Amorina Cine Bar nace de la pasión por el séptimo arte. Un lugar donde el cine se vive, se debate y
+                    se celebra. Ubicados en el corazón de Palermo, ofrecemos una experiencia cinematográfica única con
+                    proyecciones cuidadosamente curadas, acompañadas de nuestra carta de tragos y comidas.</p>
+            </section>
+
+            <!-- PERFIL SECTION -->
+            <section id="perfil" class="section">
+                <h2 class="section-title">MI PERFIL</h2>
+                <p class="section-subtitle">Accedé a tu historial de películas y nivel de suscripción.</p>
+                <button class="login-btn" onclick="loginWithGoogle()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    INICIAR CON GOOGLE
+                </button>
+            </section>
+        </div>
+    </div>
+
+    <!-- MOVIE MODAL -->
+    <div class="modal-overlay" id="movieModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div class="modal-poster">
+                <img id="modalPoster" src="" alt="">
+                <div class="modal-poster-info">
+                    <div class="director" id="modalDirector"></div>
+                    <div class="title" id="modalTitle"></div>
+                    <div class="meta" id="modalGenre"></div>
+                    <div class="meta" id="modalMeta"></div>
+                </div>
+                <div class="modal-share">
+                    <button onclick="shareWhatsApp()">📱 Compartir</button>
+                    <button onclick="copyLink()">📋 Copiar</button>
+                </div>
+            </div>
+            <div class="modal-content">
+                <div class="modal-tabs">
+                    <button class="modal-tab active" onclick="switchModalTab('funciones')">FUNCIONES</button>
+                    <button class="modal-tab" onclick="switchModalTab('sinopsis')">SINOPSIS</button>
+                </div>
+                <div id="funcionesTab">
+                    <div class="funciones-grid" id="funcionesGrid"></div>
+                    <div class="modal-location">
+                        <span class="modal-location-name">Amorina (caba)</span>
+                        <a href="https://www.google.com/maps/search/Gorriti+5745" target="_blank">↗</a>
+                    </div>
+                    <button class="modal-reserve-btn" onclick="openReservation()">RESERVAR ENTRADA</button>
+                </div>
+                <div id="sinopsisTab" class="sinopsis-content">
+                    <p id="modalSinopsis"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Schedule data
+        let schedule = [];
+        let currentMovie = null;
+        let selectedFuncion = null;
+        let isMobile = window.innerWidth <= 768;
+
+        // Load schedule
+        async function loadSchedule() {
+            try {
+                const response = await fetch('schedule.json');
+                schedule = await response.json();
+
+                // Sort by showtime
+                schedule.sort((a, b) => new Date(a.showtime) - new Date(b.showtime));
+
+                renderTimeline();
+                setupScrollObserver();
+            } catch (err) {
+                console.error('Error loading schedule:', err);
+            }
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+                'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+            const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+            return {
+                day: date.getDate(),
+                month: months[date.getMonth()],
+                weekday: days[date.getDay()]
+            };
+        }
+
+        // Group movies by day
+        function groupByDay(movies) {
+            const groups = {};
+            movies.forEach(movie => {
+                const date = new Date(movie.showtime);
+                const dayKey = date.toISOString().split('T')[0];
+                if (!groups[dayKey]) {
+                    groups[dayKey] = [];
+                }
+                groups[dayKey].push(movie);
+            });
+            return groups;
+        }
+
+        // Render infinite timeline
+        function renderTimeline() {
+            const container = document.getElementById('moviesTimeline');
+            const grouped = groupByDay(schedule);
+            const days = Object.keys(grouped).sort();
+
+            let html = '';
+
+            days.forEach((dayKey, dayIndex) => {
+                const dateInfo = formatDate(dayKey);
+                const movies = grouped[dayKey];
+
+                // Add day separator
+                html += `
+                    <div class="day-separator" data-day="${dayKey}">
+                        <div class="day-separator-date">${dateInfo.day}</div>
+                        <div>
+                            <div class="day-separator-month">${dateInfo.month}</div>
+                            <div class="day-separator-weekday">${dateInfo.weekday}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Add movies for this day
+                movies.forEach(movie => {
+                    const time = new Date(movie.showtime).toLocaleTimeString('es-AR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    html += `
+                        <div class="movie-card" data-day="${dayKey}" onclick="openModal('${movie.title}', '${movie.showtime}')">
+                            <div class="movie-time-badge">${time}</div>
+                            <img class="movie-poster" src="${movie.poster}" alt="${movie.title}" 
+                                 loading="lazy" onerror="this.src='https://via.placeholder.com/300x450?text=No+Image'">
+                            <div class="movie-info">
+                                <div class="movie-director">${movie.director}</div>
+                                <div class="movie-title">${movie.title}</div>
+                                <div class="movie-meta">${movie.nationality || ''}</div>
+                                <div class="movie-meta">${movie.runtime_mins ? movie.runtime_mins + "'" : ''} ${movie.year ? '/ ' + movie.year : ''}</div>
+                                <div class="movie-footer">
+                                    <span class="movie-price">$${movie.price}</span>
+                                    <button class="movie-btn">SABER MÁS</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Setup scroll observer to update day indicator
+        function setupScrollObserver() {
+            const timeline = document.getElementById('moviesTimeline');
+            const indicator = document.getElementById('dayIndicator');
+
+            timeline.addEventListener('scroll', () => {
+                const separators = document.querySelectorAll('.day-separator');
+                const cards = document.querySelectorAll('.movie-card');
+
+                // Find current visible day
+                let currentDay = null;
+
+                if (isMobile) {
+                    // Vertical scroll - check top position
+                    const scrollTop = timeline.scrollTop;
+
+                    [...separators, ...cards].forEach(el => {
+                        if (el.offsetTop <= scrollTop + 150) {
+                            currentDay = el.dataset.day;
+                        }
+                    });
+                } else {
+                    // Horizontal scroll - check left position
+                    const scrollLeft = timeline.scrollLeft;
+
+                    [...separators, ...cards].forEach(el => {
+                        if (el.offsetLeft <= scrollLeft + 200) {
+                            currentDay = el.dataset.day;
+                        }
+                    });
+                }
+
+                if (currentDay) {
+                    const dateInfo = formatDate(currentDay);
+                    indicator.textContent = `${dateInfo.weekday} ${dateInfo.day}`;
+                    indicator.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Section navigation
+        function goToSection(index) {
+            const wrapper = document.getElementById('sectionsWrapper');
+            const sections = wrapper.querySelectorAll('.section');
+
+            if (isMobile) {
+                // Horizontal scroll on mobile
+                wrapper.scrollTo({
+                    left: sections[index].offsetLeft,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Vertical scroll on desktop
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updateActiveNav(index);
+        }
+
+        // Update navigation state
+        function updateActiveNav(index) {
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.mobile-section-nav a').forEach((link, i) => {
+                link.classList.toggle('active', i === index);
+            });
+
+            // Update day indicator visibility
+            const indicator = document.getElementById('dayIndicator');
+            indicator.classList.toggle('hidden', index !== 0);
+        }
+
+        // Observe section changes
+        function setupSectionObserver() {
+            const wrapper = document.getElementById('sectionsWrapper');
+
+            wrapper.addEventListener('scroll', () => {
+                const sections = wrapper.querySelectorAll('.section');
+
+                if (isMobile) {
+                    // Horizontal scroll - check which section is visible
+                    const scrollLeft = wrapper.scrollLeft;
+                    const sectionWidth = window.innerWidth;
+                    const currentIndex = Math.round(scrollLeft / sectionWidth);
+                    updateActiveNav(currentIndex);
+                } else {
+                    // Vertical scroll
+                    const scrollTop = wrapper.scrollTop;
+                    sections.forEach((section, i) => {
+                        if (section.offsetTop <= scrollTop + 200) {
+                            updateActiveNav(i);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Open modal
+        function openModal(movieTitle, showtime) {
+            currentMovie = schedule.find(m => m.title === movieTitle && m.showtime === showtime);
+            if (!currentMovie) {
+                currentMovie = schedule.find(m => m.title === movieTitle);
+            }
+            if (!currentMovie) return;
+
+            // Find all showtimes for this movie
+            const allShowtimes = schedule.filter(m => m.title === currentMovie.title);
+
+            // Group by day
+            const byDay = {};
+            allShowtimes.forEach(s => {
+                const date = new Date(s.showtime);
+                const dayKey = date.toISOString().split('T')[0];
+                if (!byDay[dayKey]) byDay[dayKey] = [];
+                byDay[dayKey].push(s);
+            });
+
+            // Update modal content
+            document.getElementById('modalPoster').src = currentMovie.poster;
+            document.getElementById('modalDirector').textContent = currentMovie.director;
+            document.getElementById('modalTitle').textContent = currentMovie.title;
+            document.getElementById('modalGenre').textContent = currentMovie.genre;
+            document.getElementById('modalMeta').textContent =
+                `${currentMovie.nationality || ''} ${currentMovie.runtime_mins ? currentMovie.runtime_mins + "'" : ''} / ${currentMovie.year || ''}`;
+            document.getElementById('modalSinopsis').textContent = currentMovie.overview || 'Sin sinopsis disponible.';
+
+            // Get month name
+            const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+            // Render funciones
+            const funcionesGrid = document.getElementById('funcionesGrid');
+            funcionesGrid.innerHTML = Object.entries(byDay).slice(0, 4).map(([day, shows]) => {
+                const date = new Date(day + 'T12:00:00');
+                const dayName = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][date.getDay()];
+                const monthName = months[date.getMonth()];
+                return `
+                    <div class="funcion-day">
+                        <div class="funcion-day-label">${dayName} ${date.getDate()}</div>
+                        <div class="funcion-day-date">${monthName}</div>
+                        ${shows.map(s => {
+                    const time = new Date(s.showtime).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+                    return `<div class="funcion-time" onclick="selectFuncion('${s.showtime}', event)">${time}</div>`;
+                }).join('')}
+                    </div>
+                `;
+            }).join('');
+
+            // Show modal
+            document.getElementById('movieModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Select funcion
+        function selectFuncion(showtime, event) {
+            event.stopPropagation();
+            selectedFuncion = showtime;
+            document.querySelectorAll('.funcion-time').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('movieModal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentMovie = null;
+            selectedFuncion = null;
+        }
+
+        // Switch modal tab
+        function switchModalTab(tab) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('funcionesTab').style.display = tab === 'funciones' ? 'block' : 'none';
+            document.getElementById('sinopsisTab').style.display = tab === 'sinopsis' ? 'block' : 'none';
+            document.getElementById('sinopsisTab').classList.toggle('active', tab === 'sinopsis');
+        }
+
+        // Placeholder functions
+        function loginWithGoogle() {
+            alert('Login con Google - Próximamente');
+        }
+
+        function openReservation() {
+            if (!selectedFuncion) {
+                alert('Seleccioná un horario primero');
+                return;
+            }
+            alert(`Reservar para ${currentMovie.title} - ${new Date(selectedFuncion).toLocaleString('es-AR')}`);
+        }
+
+        function shareWhatsApp() {
+            const text = `Mirá ${currentMovie.title} en Amorina! 🎬`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copiado!');
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 768;
+        });
+
+        // Close modal on escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Close modal on overlay click
+        document.getElementById('movieModal').addEventListener('click', e => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
+
+        // Init
+        loadSchedule();
+        setupSectionObserver();
+    </script>
+</body>
+
+</html>
