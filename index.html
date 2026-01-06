@@ -82,13 +82,14 @@
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 16px 24px;
+            padding: 12px 24px;
             display: flex;
-            justify-content: flex-end;
-            /* Align items to the right (profile icon) */
+            justify-content: space-between;
             align-items: center;
             background: linear-gradient(180deg, rgba(250, 245, 240, 0.98) 0%, rgba(250, 245, 240, 0) 100%);
             pointer-events: none;
+            min-height: 80px;
+            /* Ensure enough height for alignment */
         }
 
         .header>* {
@@ -98,7 +99,8 @@
         .logo-center {
             position: absolute;
             left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,8 +108,8 @@
         }
 
         .logo-center img {
-            height: 50px;
-            /* Adjust size as needed, previous was 40px */
+            height: 60px;
+            /* Increased by 20% (was 50px) */
             width: auto;
         }
 
@@ -127,24 +129,21 @@
             height: 20px;
         }
 
-        /* ==================== FLOATING DAY INDICATOR ==================== */
+        /* ==================== DAY INDICATOR ==================== */
         .day-indicator {
-            position: fixed;
-            top: 80px;
-            left: 24px;
-            z-index: 90;
             background: var(--black);
             color: var(--white);
-            padding: 12px 20px;
+            padding: 10px 18px;
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1.1rem;
             letter-spacing: 2px;
             box-shadow: 4px 4px 0 var(--red);
             transition: transform 0.3s, opacity 0.3s;
+            white-space: nowrap;
         }
 
         .day-indicator.hidden {
-            transform: translateY(-100px);
+            transform: translateX(-150%);
             opacity: 0;
         }
 
@@ -876,9 +875,13 @@
     <div class="app-container">
         <!-- Header -->
         <header class="header">
+            <!-- Day indicator now part of the header for perfect alignment -->
+            <div class="day-indicator" id="dayIndicator">HOY</div>
+
             <a href="#cartelera" class="logo-center">
                 <img src="logo-amorina.png" alt="Amorina">
             </a>
+
             <div class="header-icon" id="userProfileBtn">
                 <div id="userAvatar"
                     style="display: none; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--red); color: white; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem;">
@@ -889,9 +892,6 @@
                 </svg>
             </div>
         </header>
-
-        <!-- Floating day indicator -->
-        <div class="day-indicator" id="dayIndicator">HOY</div>
 
         <!-- Navigation dots (desktop) -->
         <nav class="nav-dots">
