@@ -2353,8 +2353,20 @@
         function updateQty(delta) {
             ticketQuantity = Math.max(1, Math.min(10, ticketQuantity + delta));
             document.getElementById('qtyValue').innerText = ticketQuantity;
-            const price = currentMovie?.price || 5000;
-            document.getElementById('totalPriceDisplay').innerText = `Total: $${price * ticketQuantity}`;
+
+            const basePrice = parseInt(currentMovie?.price) || 5000;
+            const discount = getUserDiscount();
+            const discountedPrice = Math.round(basePrice * (1 - discount / 100));
+            const total = discountedPrice * ticketQuantity;
+
+            if (discount > 0) {
+                document.getElementById('totalPriceDisplay').innerHTML = `
+                    <span style="text-decoration: line-through; color: #999;">$${(basePrice * ticketQuantity).toLocaleString('es-AR')}</span>
+                    Total: $${total.toLocaleString('es-AR')} <span style="color: var(--green); font-size: 0.8em;">(${discount}% OFF)</span>
+                `;
+            } else {
+                document.getElementById('totalPriceDisplay').innerText = `Total: $${total.toLocaleString('es-AR')}`;
+            }
         }
 
         async function openReservation() {
@@ -2378,7 +2390,47 @@
             reserveBtn.innerText = 'PROCESANDO...';
             reserveBtn.disabled = true;
 
+            // Calculate discounted price
+            const basePrice = parseInt(currentMovie?.price) || 5000;
+            const discount = getUserDiscount();
+            const discountedPrice = Math.round(basePrice * (1 - discount / 100));
+            const totalAmount = discountedPrice * ticketQuantity;
+
             try {
+                // Check if admin - bypass MercadoPago
+                if (isUserAdmin()) {
+                    // Create purchase directly in database
+                    const ticketCode = 'AMO-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+
+                    const { data: purchase, error } = await supabase
+                        .from('purchases')
+                        .insert({
+                            user_id: user.id,
+                            user_email: user.email,
+                            user_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                            movie_title: currentMovie.title,
+                            movie_poster: currentMovie.poster,
+                            showtime: selectedFuncion,
+                            quantity: ticketQuantity,
+                            unit_price: discountedPrice,
+                            total_amount: totalAmount,
+                            discount_applied: discount,
+                            ticket_code: ticketCode,
+                            status: 'active',
+                            payment_status: 'admin_bypass'
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    alert(`✅ Reserva creada con éxito!\n\nCódigo: ${ticketCode}\n(Admin bypass - sin pago)`);
+                    closeModal();
+                    loadUserTickets(); // Refresh ticket list
+                    return;
+                }
+
+                // Normal flow - MercadoPago checkout
                 const response = await fetch(`${SUPABASE_URL}/functions/v1/checkout`, {
                     method: 'POST',
                     headers: {
@@ -2389,12 +2441,14 @@
                         showtime: {
                             title: currentMovie.title,
                             showtime: selectedFuncion,
-                            price: currentMovie.price || "5000",
+                            price: discountedPrice.toString(),
                             poster: currentMovie.poster
                         },
                         quantity: ticketQuantity,
                         userEmail: user.email,
-                        userName: user.user_metadata.full_name || user.email.split('@')[0]
+                        userName: user.user_metadata.full_name || user.email.split('@')[0],
+                        discount_applied: discount,
+                        user_id: user.id
                     })
                 });
 
@@ -2512,64 +2566,142 @@
         }
 
         // ==================== TICKET SYSTEM ====================
-        // Mock ticket data (will be replaced with real data from Google Sheets)
-        const mockTickets = [
-            {
-                id: 'AMO-X7K9',
-                title: 'Invasión',
-                poster: 'https://image.tmdb.org/t/p/w200/pEXuAnJHIlGnlTVQ2fGE1c6XCNW.jpg',
-                date: '2026-01-10T20:00:00',
-                used: false
-            },
-            {
-                id: 'AMO-M4P2',
-                title: 'Casablanca',
-                poster: 'https://image.tmdb.org/t/p/w200/5K7cOHoay2mZusSLezBOY0Qxh8a.jpg',
-                date: '2026-01-15T19:00:00',
-                used: false
-            },
-            {
-                id: 'AMO-R3T5',
-                title: 'Bastardos sin Gloria',
-                poster: 'https://image.tmdb.org/t/p/w200/ai0LXkzVM3hMjDhvFdKMUemoBe.jpg',
-                date: '2025-12-20T21:00:00',
-                used: true
-            }
-        ];
+        let userProfile = null;
+        let userTickets = [];
 
-        function loadUserTickets() {
+        // Load user profile from database
+        async function loadUserProfile() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return null;
+
+                const { data: profile, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error) {
+                    console.log('Profile not found, will be created on next login');
+                    return null;
+                }
+
+                userProfile = profile;
+
+                // Update UI to show membership level
+                updateMembershipUI(profile);
+
+                return profile;
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                return null;
+            }
+        }
+
+        // Update membership display in cards
+        function updateMembershipUI(profile) {
+            if (!profile) return;
+
+            const cards = document.querySelectorAll('.sub-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.sub-card-title')?.textContent?.toLowerCase();
+                const btn = card.querySelector('.sub-card-btn');
+                if (!btn) return;
+
+                if (title?.includes('tu nivel') && profile.membership_level !== 'free') {
+                    // User has a paid membership, hide the free card
+                    card.style.opacity = '0.5';
+                } else if (title?.includes('aquilea') && profile.membership_level === 'aquilea') {
+                    btn.textContent = 'NIVEL ACTUAL';
+                    btn.classList.add('current');
+                    btn.onclick = null;
+                } else if (title?.includes('honorífico') && profile.membership_level === 'honorifico') {
+                    btn.textContent = 'NIVEL ACTUAL';
+                    btn.classList.add('current');
+                    btn.onclick = null;
+                }
+            });
+
+            // Show admin badge if admin
+            if (profile.is_admin) {
+                const perfilName = document.getElementById('perfilName');
+                if (perfilName && !perfilName.innerHTML.includes('ADMIN')) {
+                    perfilName.innerHTML += ' <span style="background:var(--red);color:white;padding:2px 8px;font-size:0.7rem;border-radius:4px;">ADMIN</span>';
+                }
+            }
+        }
+
+        // Load user tickets from database
+        async function loadUserTickets() {
             const ticketList = document.getElementById('ticketList');
             if (!ticketList) return;
 
-            // Sort: available first, then by date
-            const sortedTickets = [...mockTickets].sort((a, b) => {
-                if (a.used !== b.used) return a.used ? 1 : -1;
-                return new Date(b.date) - new Date(a.date);
-            });
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    ticketList.innerHTML = '<div class="ticket-empty">Iniciá sesión para ver tus entradas.</div>';
+                    return;
+                }
 
-            if (sortedTickets.length === 0) {
-                ticketList.innerHTML = '<div class="ticket-empty">No tenés entradas compradas todavía.</div>';
-                return;
-            }
+                const { data: purchases, error } = await supabase
+                    .from('purchases')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('showtime', { ascending: false });
 
-            ticketList.innerHTML = sortedTickets.map(ticket => {
-                const date = new Date(ticket.date);
-                const isExpired = date < new Date() || ticket.used;
-                const dateStr = date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
-                const timeStr = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+                if (error) throw error;
 
-                return `
-                    <div class="ticket-item ${isExpired ? 'used' : ''}" ${!isExpired ? `onclick="showTicketQR('${ticket.id}', '${ticket.title}')"` : ''}>
-                        <div class="ticket-led ${isExpired ? 'red' : 'green'}"></div>
-                        <img class="ticket-poster" src="${ticket.poster}" alt="${ticket.title}" onerror="this.src='https://via.placeholder.com/40x60?text=?'">
-                        <div class="ticket-info">
-                            <div class="ticket-title">${ticket.title}</div>
-                            <div class="ticket-date">${dateStr} - ${timeStr}</div>
+                userTickets = purchases || [];
+
+                if (userTickets.length === 0) {
+                    ticketList.innerHTML = '<div class="ticket-empty">No tenés entradas compradas todavía.</div>';
+                    return;
+                }
+
+                // Sort: available first, then by date
+                const sortedTickets = [...userTickets].sort((a, b) => {
+                    const aExpired = a.status !== 'active' || new Date(a.showtime) < new Date();
+                    const bExpired = b.status !== 'active' || new Date(b.showtime) < new Date();
+                    if (aExpired !== bExpired) return aExpired ? 1 : -1;
+                    return new Date(b.showtime) - new Date(a.showtime);
+                });
+
+                ticketList.innerHTML = sortedTickets.map(ticket => {
+                    const date = new Date(ticket.showtime);
+                    const isExpired = ticket.status !== 'active' || date < new Date();
+                    const dateStr = date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
+                    const timeStr = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+                    return `
+                        <div class="ticket-item ${isExpired ? 'used' : ''}" ${!isExpired ? `onclick="showTicketQR('${ticket.ticket_code}', '${ticket.movie_title}')"` : ''}>
+                            <div class="ticket-led ${isExpired ? 'red' : 'green'}"></div>
+                            <img class="ticket-poster" src="${ticket.movie_poster || ''}" alt="${ticket.movie_title}" onerror="this.src='https://via.placeholder.com/40x60?text=?'">
+                            <div class="ticket-info">
+                                <div class="ticket-title">${ticket.movie_title}</div>
+                                <div class="ticket-date">${dateStr} - ${timeStr}</div>
+                            </div>
+                            <div class="ticket-code">${ticket.ticket_code}</div>
                         </div>
-                        <div class="ticket-code">${ticket.id}</div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Error loading tickets:', err);
+                ticketList.innerHTML = '<div class="ticket-empty">Error al cargar entradas.</div>';
+            }
+        }
+
+        // Check if user is admin (can skip payment)
+        function isUserAdmin() {
+            return userProfile?.is_admin === true;
+        }
+
+        // Get user's discount percentage based on membership
+        function getUserDiscount() {
+            if (!userProfile) return 0;
+            if (userProfile.membership_level === 'honorifico') return 80;
+            if (userProfile.membership_level === 'aquilea') return 10;
+            return 0;
         }
 
         function showTicketQR(code, title) {
@@ -2716,17 +2848,22 @@
                 originalUpdateUI(user);
             }
             if (user) {
-                setTimeout(loadUserTickets, 500);
+                // Load profile first, then tickets
+                loadUserProfile().then(() => {
+                    loadUserTickets();
+                });
             }
         };
 
         // Also load on page load if already logged in
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (document.getElementById('loggedInView').style.display !== 'none') {
-                    loadUserTickets();
+            setTimeout(async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    await loadUserProfile();
+                    await loadUserTickets();
                 }
-            }, 1000);
+            }, 500);
         });
 
         // Close PDF modal on escape
