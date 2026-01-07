@@ -1586,12 +1586,13 @@
             position: fixed;
             bottom: 30px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            transform: translateX(-50%);
             background: var(--black);
             color: white;
             padding: 20px 40px;
             border-radius: 50px;
-            display: flex;
+            display: none;
+            /* Hidden by default */
             align-items: center;
             gap: 20px;
             z-index: 900;
@@ -1599,11 +1600,13 @@
             cursor: pointer;
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1.8rem;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .magazine-cart-float.active {
-            transform: translateX(-50%) translateY(0);
+            display: flex;
+            opacity: 1;
         }
 
 
@@ -3492,11 +3495,6 @@
 
         // Shipping Modal Logic
         let shippingType = 'pickup';
-        const BASE_MAGAZINE_PRICE = 15000; // Assuming a base price for the magazine
-
-        function openShippingModal() {
-            document.getElementById('shippingModal').classList.add('active');
-        }
 
         function closeShippingModal() {
             document.getElementById('shippingModal').classList.remove('active');
