@@ -3535,7 +3535,7 @@
             quoteDiv.classList.add('active');
         }
 
-        function redirectToMagazinePayment() {
+        async function redirectToMagazinePayment() {
             if (shippingType === 'delivery') {
                 const address = document.getElementById('shipAddress').value;
                 const zip = document.getElementById('shipZip').value;
@@ -3545,35 +3545,96 @@
                 }
             }
 
-            // Build order summary for confirmation
-            let orderSummary = '📦 RESUMEN DE PEDIDO\n\n';
-            let total = 0;
-            let itemCount = 0;
+            // Get current user info
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                alert('Necesitás iniciar sesión para continuar con la compra');
+                goToSection(3); // Go to profile section
+                closeShippingModal();
+                return;
+            }
+
+            // Build order items
+            const items = [];
+            let subtotal = 0;
+            let discountAmount = 0;
 
             Object.entries(magazineCart).forEach(([id, qty]) => {
                 if (qty > 0) {
-                    itemCount += qty;
-                    let lineTotal = qty >= 2 ? (qty * MAGAZINE_PRICE) * 0.8 : qty * MAGAZINE_PRICE;
-                    total += lineTotal;
-                    const discount = qty >= 2 ? ' (20% OFF)' : '';
-                    orderSummary += `• Tita! #${id} x${qty}${discount} - $${lineTotal.toLocaleString('es-AR')}\n`;
+                    const unitPrice = MAGAZINE_PRICE;
+                    let lineTotal = qty * unitPrice;
+                    let hasDiscount = false;
+
+                    if (qty >= 2) {
+                        const originalTotal = lineTotal;
+                        lineTotal = lineTotal * 0.8; // 20% off
+                        discountAmount += (originalTotal - lineTotal);
+                        hasDiscount = true;
+                    }
+
+                    subtotal += lineTotal;
+
+                    items.push({
+                        id: parseInt(id),
+                        quantity: qty,
+                        title: `Tita! #${id}`,
+                        unitPrice: unitPrice,
+                        lineTotal: lineTotal,
+                        hasDiscount: hasDiscount
+                    });
                 }
             });
 
-            if (shippingType === 'delivery') {
-                const shippingCost = 8000; // Base shipping
-                total += shippingCost;
-                orderSummary += `\n📍 Envío a domicilio: $${shippingCost.toLocaleString('es-AR')}\n`;
-                orderSummary += `Dirección: ${document.getElementById('shipAddress').value}\n`;
-            } else {
-                orderSummary += `\n📍 Retiro en Amorina (Sin cargo)\n`;
+            // Calculate shipping
+            const shippingCost = shippingType === 'delivery' ? 8000 : 0;
+            const totalAmount = subtotal + shippingCost;
+
+            // Show loading state
+            const payBtn = document.querySelector('.shipping-btn');
+            const originalText = payBtn.textContent;
+            payBtn.textContent = 'Procesando...';
+            payBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/magazine-checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        items: items,
+                        subtotal: subtotal,
+                        discountAmount: discountAmount,
+                        shippingMethod: shippingType,
+                        shippingCost: shippingCost,
+                        shippingAddress: shippingType === 'delivery' ? {
+                            address: document.getElementById('shipAddress').value,
+                            postalCode: document.getElementById('shipZip').value
+                        } : null,
+                        userEmail: user.email,
+                        userName: user.user_metadata.full_name || user.email.split('@')[0],
+                        totalAmount: totalAmount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.initPoint) {
+                    // Redirect to MercadoPago
+                    window.location.href = data.initPoint;
+                } else {
+                    console.error('Checkout error:', data);
+                    alert('Error al crear el pago. Por favor intentá de nuevo.');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Error de conexión. Verificá tu conexión a internet.');
+            } finally {
+                payBtn.textContent = originalText;
+                payBtn.disabled = false;
             }
-
-            orderSummary += `\n💰 TOTAL: $${total.toLocaleString('es-AR')}\n`;
-            orderSummary += '\n¡Estamos preparando el sistema de pago online! Por ahora, podés contactarnos por Instagram @amorina.cine para coordinar.';
-
-            alert(orderSummary);
-            closeShippingModal();
         }
 
         // Close modal on overlay click
