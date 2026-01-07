@@ -502,12 +502,27 @@
 
         .pdf-close {
             position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 3rem;
-            color: var(--cream);
+            top: 24px;
+            right: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             z-index: 10001;
+            transition: color 0.3s;
+            font-weight: 300;
+            /* Thinner font */
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+        }
+
+        .pdf-close:hover {
+            color: var(--white);
+            background: rgba(0, 0, 0, 0.8);
         }
 
         .pdf-container {
@@ -1462,6 +1477,65 @@
             background: var(--red-dark);
         }
 
+        /* Magazine specific styles */
+        .revista-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .revista-btn {
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .revista-qty {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .revista-price-tag {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #666;
+        }
+
+        .magazine-cart-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--black);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 40px;
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .magazine-cart-float.active {
+            display: flex;
+        }
+
+
         .quantity-selector {
             display: flex;
             align-items: center;
@@ -1910,27 +1984,64 @@
                 <p class="section-subtitle">Explorá nuestra revista digital con artículos sobre cine, cultura y más.</p>
 
                 <div class="revista-grid">
-                    <div class="revista-card" onclick="openRevista(1)">
-                        <img src="revistas/tita-1.jpg" alt="Tita! #1">
-                        <div class="revista-label">NÚMERO 1 · OCT '24</div>
+                    <!-- Tita #1 -->
+                    <div class="revista-card">
+                        <div onclick="openRevista(1)">
+                            <img src="revistas/tita-1.jpg" alt="Tita! #1">
+                            <div class="revista-label">NÚMERO 1 · OCT '24</div>
+                        </div>
+                        <div class="revista-price-tag">$5000</div>
+                        <div class="revista-controls">
+                            <button class="revista-btn" onclick="updateMagazineQty(1, -1)">-</button>
+                            <span class="revista-qty" id="mag-qty-1">0</span>
+                            <button class="revista-btn" onclick="updateMagazineQty(1, 1)">+</button>
+                        </div>
                     </div>
-                    <div class="revista-card" onclick="openRevista(2)">
-                        <img src="revistas/tita-2.jpg" alt="Tita! #2">
-                        <div class="revista-label">NÚMERO 2 · DIC '24</div>
+                    <!-- Tita #2 -->
+                    <div class="revista-card">
+                        <div onclick="openRevista(2)">
+                            <img src="revistas/tita-2.jpg" alt="Tita! #2">
+                            <div class="revista-label">NÚMERO 2 · DIC '24</div>
+                        </div>
+                        <div class="revista-price-tag">$5000</div>
+                        <div class="revista-controls">
+                            <button class="revista-btn" onclick="updateMagazineQty(2, -1)">-</button>
+                            <span class="revista-qty" id="mag-qty-2">0</span>
+                            <button class="revista-btn" onclick="updateMagazineQty(2, 1)">+</button>
+                        </div>
                     </div>
-                    <div class="revista-card" onclick="openRevista(3)">
-                        <img src="revistas/tita-3.jpg" alt="Tita! #3">
-                        <div class="revista-label">NÚMERO 3 · MAR '25</div>
+                    <!-- Tita #3 -->
+                    <div class="revista-card">
+                        <div onclick="openRevista(3)">
+                            <img src="revistas/tita-3.jpg" alt="Tita! #3">
+                            <div class="revista-label">NÚMERO 3 · MAR '25</div>
+                        </div>
+                        <div class="revista-price-tag">$5000</div>
+                        <div class="revista-controls">
+                            <button class="revista-btn" onclick="updateMagazineQty(3, -1)">-</button>
+                            <span class="revista-qty" id="mag-qty-3">0</span>
+                            <button class="revista-btn" onclick="updateMagazineQty(3, 1)">+</button>
+                        </div>
                     </div>
-                    <div class="revista-card" onclick="openRevista(4)">
-                        <img src="revistas/tita-4.jpg" alt="Tita! #4">
-                        <div class="revista-label">NÚMERO 4 · DIC '25</div>
+                    <!-- Tita #4 -->
+                    <div class="revista-card">
+                        <div onclick="openRevista(4)">
+                            <img src="revistas/tita-4.jpg" alt="Tita! #4">
+                            <div class="revista-label">NÚMERO 4 · DIC '25</div>
+                        </div>
+                        <div class="revista-price-tag">$5000</div>
+                        <div class="revista-controls">
+                            <button class="revista-btn" onclick="updateMagazineQty(4, -1)">-</button>
+                            <span class="revista-qty" id="mag-qty-4">0</span>
+                            <button class="revista-btn" onclick="updateMagazineQty(4, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <button class="revista-buy-btn" onclick="openShippingModal()">
-                    ¡Conseguí el número físico ya!
-                </button>
+                <div id="magazineCartFloat" class="magazine-cart-float" onclick="openShippingModal()">
+                    <span>COMPRAR REVISTAS</span>
+                    <span id="magCartTotal">$0</span>
+                </div>
             </section>
 
             <!-- Shipping Modal -->
@@ -2856,11 +2967,53 @@
 
             // Show full PDF (all pages free)
             container.innerHTML = `
-                <iframe src="${revista.pdf}" title="${revista.title}"></iframe>
+                <iframe src="${revista.pdf}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="${revista.title}" style="border:none; width:100%; height:100%;"></iframe>
             `;
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        // Magazine Shop Logic
+        const magazineCart = { 1: 0, 2: 0, 3: 0, 4: 0 };
+        const MAGAZINE_PRICE = 5000;
+
+        function updateMagazineQty(id, delta) {
+            const current = magazineCart[id] || 0;
+            const newQty = Math.max(0, current + delta);
+            magazineCart[id] = newQty;
+
+            // Update UI
+            document.getElementById(`mag-qty-${id}`).textContent = newQty;
+            updateMagazineCartTotal();
+        }
+
+        function updateMagazineCartTotal() {
+            let total = 0;
+            let count = 0;
+
+            Object.entries(magazineCart).forEach(([id, qty]) => {
+                if (qty > 0) {
+                    count += qty;
+                    // Discount Logic: If 2 or more of THE SAME issue, 20% off applied to that line item?
+                    // "seleccionar 2 iguales le muestre en el instante un 20% de descuento"
+                    if (qty >= 2) {
+                        total += (qty * MAGAZINE_PRICE) * 0.8; // 20% off
+                    } else {
+                        total += qty * MAGAZINE_PRICE;
+                    }
+                }
+            });
+
+            const floatBtn = document.getElementById('magazineCartFloat');
+            const totalDisplay = document.getElementById('magCartTotal');
+
+            if (count > 0) {
+                floatBtn.classList.add('active');
+                totalDisplay.textContent = `$${total.toLocaleString()}`;
+            } else {
+                floatBtn.classList.remove('active');
+            }
         }
 
         function closePdfModal() {
