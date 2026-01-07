@@ -2695,6 +2695,18 @@
             // Update day indicator visibility
             const indicator = document.getElementById('dayIndicator');
             indicator.classList.toggle('hidden', index !== 0);
+
+            // Hide magazine cart button when NOT on magazine section (index 1)
+            const magazineCartBtn = document.getElementById('magazineCartFloat');
+            if (magazineCartBtn) {
+                if (index === 1) {
+                    // On magazine section - show if there are items
+                    updateMagazineCartTotal();
+                } else {
+                    // Not on magazine section - always hide
+                    magazineCartBtn.classList.remove('active');
+                }
+            }
         }
 
         // Observe section changes
