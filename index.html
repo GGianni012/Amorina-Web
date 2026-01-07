@@ -3115,21 +3115,21 @@
                 if (qty > 0) {
                     itemCount += qty;
                     let lineTotal = 0;
-                    let discountMsg = '';
+                    let discountTag = '';
 
                     if (qty >= 2) {
                         lineTotal = (qty * MAGAZINE_PRICE) * 0.8;
-                        discountMsg = ' <span style="color:var(--green); font-size:0.8rem;">(20% OFF)</span>';
+                        discountTag = ' <span style="color:var(--green); font-size:0.8rem; margin-left:8px;">(20% OFF)</span>';
                     } else {
                         lineTotal = qty * MAGAZINE_PRICE;
                     }
 
                     total += lineTotal;
 
-                    // Format: "Tita! #3 (2x)" 
+                    // Format: "Tita! #4 x2 - $16.000" 
                     html += `
                         <div class="checkout-item">
-                            <span>Tita! #${id} (${qty}x) ${discountMsg}</span>
+                            <span>Tita! #${id} x${qty}${discountTag}</span>
                             <span>$${lineTotal.toLocaleString('es-AR')}</span>
                         </div>
                     `;
@@ -3139,8 +3139,8 @@
             // Add total row at the end
             html += `
                 <div class="checkout-total">
-                    <span>Total (${itemCount} revistas)</span>
-                    <span id="checkoutTotalValue">$${total.toLocaleString('es-AR')}</span>
+                    <span>TOTAL (${itemCount} revista${itemCount > 1 ? 's' : ''})</span>
+                    <span>$${total.toLocaleString('es-AR')}</span>
                 </div>
             `;
 
