@@ -691,6 +691,41 @@
             transform: scale(1.1);
         }
 
+        /* Substack Preview Styling */
+        .bento-substack-preview {
+            background: linear-gradient(135deg, #ff6719 0%, #ff8c42 100%);
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+            padding: 20px 24px;
+        }
+
+        .bento-substack-preview::before {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .bento-substack-latest {
+            position: relative;
+            z-index: 2;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            margin-bottom: 12px;
+            color: white;
+        }
+
+        .bento-substack-preview .bento-title {
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .bento-substack-preview .bento-subtitle {
+            text-align: left;
+        }
+
+
         @media (max-width: 768px) {
             .bento-grid {
                 grid-template-columns: 1fr 1fr;
@@ -2646,8 +2681,9 @@
                 </p>
 
                 <div class="bento-grid">
-                    <!-- RESTAURA - YouTube Archive -->
-                    <a href="https://www.youtube.com/@amorinaArchivo" target="_blank" class="bento-item large">
+                    <!-- RESTAURA - YouTube Archive with preview -->
+                    <a href="https://www.youtube.com/@amorinaArchivo" target="_blank" class="bento-item large"
+                        style="background-image: url('restaura-preview.png');">
                         <span class="bento-title">AMORINA RESTAURA</span>
                         <span class="bento-subtitle">Películas remasterizadas por amor al arte</span>
                     </a>
@@ -2662,16 +2698,19 @@
                         <span class="bento-subtitle">Nuestro festival de cine</span>
                     </div>
 
-                    <!-- SUBTITULOS - App -->
-                    <a href="https://subs.amorina.club" target="_blank" class="bento-item">
+                    <!-- SUBTITULOS - App with mockup preview -->
+                    <a href="https://subs.amorina.club" target="_blank" class="bento-item"
+                        style="background-image: url('subtitulos-preview.png');">
                         <span class="bento-title">SUBTITULOS</span>
-                        <span class="bento-subtitle">Subtítulos en cualquier idioma en 5 min</span>
+                        <span class="bento-subtitle">Cualquier idioma en 5 min</span>
                     </a>
 
-                    <!-- SUBSTACK - Newsletter -->
-                    <a href="https://amorinaclub.substack.com" target="_blank" class="bento-item">
-                        <span class="bento-title">SUBSTACK</span>
-                        <span class="bento-subtitle">Suscribite a nuestro newsletter</span>
+                    <!-- SUBSTACK - Newsletter Preview -->
+                    <a href="https://amorinaclub.substack.com" target="_blank"
+                        class="bento-item bento-substack-preview">
+                        <span class="bento-substack-latest">ÚLTIMO POST</span>
+                        <span class="bento-title" style="font-size: 1.2rem;">Reconciliación en tres movimientos</span>
+                        <span class="bento-subtitle">El Eternauta episodio 4</span>
                     </a>
 
                     <!-- AQUILEA 57 - Location with image background -->
@@ -2681,6 +2720,7 @@
                         <span class="bento-subtitle">Donde funcionamos</span>
                     </a>
                 </div>
+
 
 
             </section>
