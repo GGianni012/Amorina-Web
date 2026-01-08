@@ -3399,12 +3399,14 @@
 
         // Check if user has premium access (subscribed)
         function hasSubscription() {
-            // Check if user is logged in and has a subscription tier > 'gratis'
-            if (userProfile && userProfile.tier && userProfile.tier !== 'gratis') {
+            // Check if user is logged in and has a paid membership level
+            if (userProfile && userProfile.membership_level &&
+                (userProfile.membership_level === 'aquilea' || userProfile.membership_level === 'honorifico')) {
                 return true;
             }
             return false;
         }
+
 
         function openRevista(num) {
             const revista = revistaData[num];
