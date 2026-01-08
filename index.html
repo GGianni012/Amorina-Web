@@ -526,18 +526,74 @@
         }
 
         .pdf-container {
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            background: var(--cream);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .pdf-container iframe {
             width: 100%;
             height: 100%;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            background: var(--black);
+        }
+
+        .pdf-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-page {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .carousel-page img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .carousel-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 10002;
+        }
+
+        .carousel-controls button {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .carousel-controls button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .carousel-page-indicator {
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            min-width: 60px;
+            text-align: center;
         }
 
         .pdf-paywall {
@@ -3085,13 +3141,16 @@
             alert('Link copiado!');
         }
 
-        // Revista PDF functions
+        // Revista WebP Carousel functions
         const revistaData = {
-            1: { title: 'Tita! #1 - Octubre 2024', pdf: 'revistas/tita-1.pdf', totalPages: 20, freePages: 10 },
-            2: { title: 'Tita! #2 - Diciembre 2024', pdf: 'revistas/tita-2.pdf', totalPages: 24, freePages: 12 },
-            3: { title: 'Tita! #3 - Marzo 2025', pdf: 'revistas/tita-3.pdf', totalPages: 22, freePages: 11 },
-            4: { title: 'Tita! #4 - Diciembre 2025', pdf: 'revistas/tita-4.pdf', totalPages: 26, freePages: 13 },
+            1: { title: 'Tita! #1 - Octubre 2024', folder: 'revistas/tita-1-pages', totalPages: 46 },
+            2: { title: 'Tita! #2 - Diciembre 2024', folder: 'revistas/tita-2-pages', totalPages: 76 },
+            3: { title: 'Tita! #3 - Marzo 2025', folder: 'revistas/tita-3-pages', totalPages: 47 },
+            4: { title: 'Tita! #4 - Diciembre 2025', folder: 'revistas/tita-4-pages', totalPages: 69 },
         };
+
+        let currentCarouselPage = 0;
+        let currentRevistaTotal = 0;
 
         function openRevista(num) {
             const revista = revistaData[num];
@@ -3100,13 +3159,57 @@
             const modal = document.getElementById('pdfModal');
             const container = document.getElementById('pdfContainer');
 
-            // Show full PDF (all pages free)
-            container.innerHTML = `
-                <iframe src="${revista.pdf}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="${revista.title}" style="border:none; width:100%; height:100%;"></iframe>
+            currentCarouselPage = 0;
+            currentRevistaTotal = revista.totalPages;
+
+            // Generate horizontal carousel with lazy-loaded images
+            let pagesHtml = '';
+            for (let i = 1; i <= revista.totalPages; i++) {
+                const pageNum = i.toString().padStart(2, '0');
+                pagesHtml += `
+                    <div class="carousel-page" data-page="${i}">
+                        <img src="${revista.folder}/page-${pageNum}.webp" alt="Página ${i}" loading="lazy">
+                    </div>
+                `;
+            }
+
+            container.innerHTML = pagesHtml;
+
+            // Add controls
+            const controlsHtml = `
+                <div class="carousel-controls">
+                    <button onclick="carouselPrev()" aria-label="Página anterior">❮</button>
+                    <span class="carousel-page-indicator" id="pageIndicator">1 / ${revista.totalPages}</span>
+                    <button onclick="carouselNext()" aria-label="Página siguiente">❯</button>
+                </div>
             `;
+            modal.insertAdjacentHTML('beforeend', controlsHtml);
+
+            // Track scroll for page indicator
+            container.addEventListener('scroll', updatePageIndicator);
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        function updatePageIndicator() {
+            const container = document.getElementById('pdfContainer');
+            const pageWidth = container.clientWidth;
+            currentCarouselPage = Math.round(container.scrollLeft / pageWidth);
+            const indicator = document.getElementById('pageIndicator');
+            if (indicator) {
+                indicator.textContent = `${currentCarouselPage + 1} / ${currentRevistaTotal}`;
+            }
+        }
+
+        function carouselPrev() {
+            const container = document.getElementById('pdfContainer');
+            container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' });
+        }
+
+        function carouselNext() {
+            const container = document.getElementById('pdfContainer');
+            container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
         }
 
         // Magazine Shop Logic
@@ -3200,9 +3303,20 @@
 
         function closePdfModal() {
             const modal = document.getElementById('pdfModal');
+            const container = document.getElementById('pdfContainer');
+            const controls = modal.querySelector('.carousel-controls');
+
+            // Clean up controls and container
+            if (controls) controls.remove();
+            if (container) {
+                container.removeEventListener('scroll', updatePageIndicator);
+                container.innerHTML = '';
+            }
+
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }
+
 
         // ==================== TICKET SYSTEM ====================
         let userProfile = null;
