@@ -550,6 +550,140 @@
             max-width: 600px;
         }
 
+        /* Bento Grid for NOSOTROS Hub */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+            max-width: 700px;
+            margin: 40px auto 0;
+            padding: 0 20px;
+        }
+
+        .bento-item {
+            background: var(--black);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+        }
+
+        .bento-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bento-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .bento-item:hover::before {
+            opacity: 1;
+        }
+
+        /* Bento item sizes */
+        .bento-item.large {
+            grid-column: span 2;
+        }
+
+        .bento-item.tall {
+            grid-row: span 2;
+        }
+
+        .bento-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .bento-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: white;
+        }
+
+        .bento-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* Individual bento colors */
+        .bento-restaura {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+        }
+
+        .bento-fest {
+            background: linear-gradient(135deg, #9B2335 0%, #C41E3A 100%);
+        }
+
+        .bento-subs {
+            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
+        }
+
+        .bento-substack {
+            background: linear-gradient(135deg, #FF6719 0%, #FF8C42 100%);
+        }
+
+        .bento-aquilea {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                gap: 12px;
+                padding: 0 16px;
+            }
+
+            .bento-item {
+                min-height: 100px;
+                padding: 20px 12px;
+            }
+
+            .bento-item.large {
+                grid-column: span 2;
+            }
+
+            .bento-item.tall {
+                grid-row: span 1;
+            }
+
+            .bento-icon {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+
+            .bento-title {
+                font-size: 1.2rem;
+            }
+        }
+
+
         /* Revista Grid - Simpler horizontal layout */
         .revista-grid {
             display: flex;
@@ -2459,11 +2593,51 @@
             <!-- NOSOTROS SECTION -->
             <section id="nosotros" class="section">
                 <h2 class="section-title">NOSOTROS</h2>
-                <p class="section-subtitle">Un espacio para el cine independiente y de autor.</p>
-                <p>Amorina Cine Bar nace de la pasión por el séptimo arte. Un lugar donde el cine se vive, se debate y
-                    se celebra. Ubicados en el corazón de Palermo, ofrecemos una experiencia cinematográfica única con
-                    proyecciones cuidadosamente curadas, acompañadas de nuestra carta de tragos y comidas.</p>
+                <p class="section-subtitle">Mucho más que un cine.</p>
+                <p
+                    style="max-width: 500px; text-align: center; margin: 0 auto; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; line-height: 1.6; opacity: 0.9;">
+                    Amorina es un espacio cultural que celebra el cine, el arte y la comunidad.
+                    Explorá nuestros proyectos.
+                </p>
+
+                <div class="bento-grid">
+                    <!-- RESTAURA - Large block -->
+                    <a href="#" class="bento-item large bento-restaura">
+                        <span class="bento-icon">🎞️</span>
+                        <span class="bento-title">RESTAURA</span>
+                        <span class="bento-subtitle">Rescatando el cine argentino</span>
+                    </a>
+
+                    <!-- FEST -->
+                    <a href="#" class="bento-item bento-fest">
+                        <span class="bento-icon">🎬</span>
+                        <span class="bento-title">FEST</span>
+                        <span class="bento-subtitle">Nuestro festival</span>
+                    </a>
+
+                    <!-- SUBS -->
+                    <a href="#perfil" class="bento-item bento-subs">
+                        <span class="bento-icon">💳</span>
+                        <span class="bento-title">SUBS</span>
+                        <span class="bento-subtitle">Membresías</span>
+                    </a>
+
+                    <!-- SUBSTACK -->
+                    <a href="https://amorina.substack.com" target="_blank" class="bento-item bento-substack">
+                        <span class="bento-icon">📰</span>
+                        <span class="bento-title">SUBSTACK</span>
+                        <span class="bento-subtitle">Newsletter</span>
+                    </a>
+
+                    <!-- AQUILEA 57 - Location -->
+                    <a href="aquilea57.html" class="bento-item large bento-aquilea">
+                        <span class="bento-icon">📍</span>
+                        <span class="bento-title">AQUILEA 57</span>
+                        <span class="bento-subtitle">Donde funcionamos</span>
+                    </a>
+                </div>
             </section>
+
 
             <!-- PERFIL SECTION -->
             <section id="perfil" class="section">
