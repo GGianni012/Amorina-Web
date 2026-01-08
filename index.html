@@ -564,7 +564,6 @@
 
         .bento-item {
             background: var(--black);
-            border-radius: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -576,29 +575,18 @@
             text-decoration: none;
             color: white;
             position: relative;
-            overflow: hidden;
             min-height: 120px;
-        }
-
-        .bento-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.3s;
+            box-shadow: 4px 4px 0 var(--red);
         }
 
         .bento-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--red);
         }
 
-        .bento-item:hover::before {
-            opacity: 1;
+        .bento-item:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--red);
         }
 
         /* Bento item sizes */
@@ -611,45 +599,23 @@
         }
 
         .bento-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
         }
 
         .bento-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             letter-spacing: 2px;
             color: white;
         }
 
         .bento-subtitle {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
             font-style: italic;
             margin-top: 4px;
-        }
-
-        /* Individual bento colors */
-        .bento-restaura {
-            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-        }
-
-        .bento-fest {
-            background: linear-gradient(135deg, #9B2335 0%, #C41E3A 100%);
-        }
-
-        .bento-subs {
-            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
-        }
-
-        .bento-substack {
-            background: linear-gradient(135deg, #FF6719 0%, #FF8C42 100%);
-        }
-
-        .bento-aquilea {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @media (max-width: 768px) {
@@ -674,12 +640,12 @@
             }
 
             .bento-icon {
-                font-size: 1.6rem;
-                margin-bottom: 8px;
+                font-size: 1.5rem;
+                margin-bottom: 6px;
             }
 
             .bento-title {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
         }
 
@@ -2602,40 +2568,41 @@
 
                 <div class="bento-grid">
                     <!-- RESTAURA - Large block -->
-                    <a href="#" class="bento-item large bento-restaura">
+                    <a href="#" class="bento-item large">
                         <span class="bento-icon">🎞️</span>
                         <span class="bento-title">RESTAURA</span>
                         <span class="bento-subtitle">Rescatando el cine argentino</span>
                     </a>
 
                     <!-- FEST -->
-                    <a href="#" class="bento-item bento-fest">
+                    <a href="#" class="bento-item">
                         <span class="bento-icon">🎬</span>
                         <span class="bento-title">FEST</span>
                         <span class="bento-subtitle">Nuestro festival</span>
                     </a>
 
                     <!-- SUBS -->
-                    <a href="#perfil" class="bento-item bento-subs">
+                    <a href="#perfil" class="bento-item">
                         <span class="bento-icon">💳</span>
                         <span class="bento-title">SUBS</span>
                         <span class="bento-subtitle">Membresías</span>
                     </a>
 
                     <!-- SUBSTACK -->
-                    <a href="https://amorina.substack.com" target="_blank" class="bento-item bento-substack">
+                    <a href="https://amorina.substack.com" target="_blank" class="bento-item">
                         <span class="bento-icon">📰</span>
                         <span class="bento-title">SUBSTACK</span>
                         <span class="bento-subtitle">Newsletter</span>
                     </a>
 
                     <!-- AQUILEA 57 - Location -->
-                    <a href="aquilea57.html" class="bento-item large bento-aquilea">
+                    <a href="aquilea57.html" class="bento-item large">
                         <span class="bento-icon">📍</span>
                         <span class="bento-title">AQUILEA 57</span>
                         <span class="bento-subtitle">Donde funcionamos</span>
                     </a>
                 </div>
+
             </section>
 
 
