@@ -67,6 +67,131 @@
             color: var(--black);
         }
 
+        /* ==================== PASSWORD GATE ==================== */
+        .password-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .password-gate.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        .password-gate-logo {
+            width: 180px;
+            margin-bottom: 40px;
+            filter: brightness(0) invert(1);
+        }
+
+        .password-gate-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 300;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 32px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .password-gate-input-wrap {
+            position: relative;
+            width: 280px;
+        }
+
+        .password-gate-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: white;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .password-gate-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .password-gate-input:focus {
+            border-color: var(--red);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .password-gate-input.error {
+            border-color: #ff4444;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-8px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(8px);
+            }
+        }
+
+        .password-gate-btn {
+            margin-top: 24px;
+            padding: 14px 48px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .password-gate-btn:hover {
+            background: var(--red-dark);
+            transform: scale(1.02);
+        }
+
+        .password-gate-error {
+            margin-top: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: #ff6666;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .password-gate-error.visible {
+            opacity: 1;
+        }
+
         /* ==================== MAIN LAYOUT ==================== */
         /* Desktop: sections vertical, movies horizontal */
         /* Mobile: sections horizontal, movies vertical */
@@ -77,6 +202,7 @@
             height: 100dvh;
             overflow: hidden;
         }
+
 
         /* Desktop: Vertical section scrolling */
         .sections-wrapper {
@@ -595,6 +721,66 @@
             min-width: 60px;
             text-align: center;
         }
+
+        /* Paywall Overlay for Locked Pages */
+        .carousel-page-locked {
+            position: relative;
+        }
+
+        .paywall-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .paywall-lock {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .paywall-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .paywall-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 24px;
+            max-width: 300px;
+        }
+
+        .paywall-btn {
+            padding: 14px 32px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .paywall-btn:hover {
+            background: var(--red-dark);
+            transform: scale(1.02);
+        }
+
 
         .pdf-paywall {
             text-align: center;
@@ -2087,8 +2273,21 @@
 </head>
 
 <body>
+    <!-- Password Gate Overlay -->
+    <div id="passwordGate" class="password-gate">
+        <img src="logo-amorina.png" alt="Amorina" class="password-gate-logo">
+        <p class="password-gate-title">Un espacio para el cine independiente</p>
+        <div class="password-gate-input-wrap">
+            <input type="password" id="passwordInput" class="password-gate-input" placeholder="Contraseña"
+                autocomplete="off">
+        </div>
+        <button class="password-gate-btn" onclick="validatePassword()">ENTRAR</button>
+        <p id="passwordError" class="password-gate-error">Contraseña incorrecta</p>
+    </div>
+
     <div class="app-container">
         <!-- Header -->
+
         <header class="header">
             <!-- Day indicator now part of the header for perfect alignment -->
             <div class="day-indicator" id="dayIndicator">HOY</div>
@@ -2482,11 +2681,54 @@
     </div>
 
     <script>
+        // ==================== PASSWORD GATE ====================
+        const PASSWORD_GATE_KEY = 'amorina_unlocked';
+        const CORRECT_PASSWORD = 'amorina2026';
+
+        function checkPasswordGate() {
+            const isUnlocked = localStorage.getItem(PASSWORD_GATE_KEY) === 'true';
+            const gate = document.getElementById('passwordGate');
+            if (isUnlocked) {
+                gate.classList.add('hidden');
+            }
+        }
+
+        function validatePassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            const gate = document.getElementById('passwordGate');
+
+            if (input.value === CORRECT_PASSWORD) {
+                localStorage.setItem(PASSWORD_GATE_KEY, 'true');
+                gate.classList.add('hidden');
+            } else {
+                input.classList.add('error');
+                error.classList.add('visible');
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 400);
+            }
+        }
+
+        // Handle Enter key on password input
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPasswordGate();
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        validatePassword();
+                    }
+                });
+            }
+        });
+
         // Supabase Configuration
         const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhempudHZyeGZ5eGxpbmt1aXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MjUwMDQsImV4cCI6MjA4MzIwMTAwNH0.otXE48RY5EWwjTXzDUvncLrJO7ujfU5RJTj6C--ouy4';
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
         // Auth Logic
         async function loginWithGoogle() {
@@ -3143,14 +3385,24 @@
 
         // Revista WebP Carousel functions
         const revistaData = {
-            1: { title: 'Tita! #1 - Octubre 2024', folder: 'revistas/tita-1-pages', totalPages: 46 },
-            2: { title: 'Tita! #2 - Diciembre 2024', folder: 'revistas/tita-2-pages', totalPages: 76 },
-            3: { title: 'Tita! #3 - Marzo 2025', folder: 'revistas/tita-3-pages', totalPages: 47 },
-            4: { title: 'Tita! #4 - Diciembre 2025', folder: 'revistas/tita-4-pages', totalPages: 69 },
+            1: { title: 'Tita! #1 - Octubre 2024', folder: 'revistas/tita-1-pages', totalPages: 46, freePages: 15 },
+            2: { title: 'Tita! #2 - Diciembre 2024', folder: 'revistas/tita-2-pages', totalPages: 76, freePages: 20 },
+            3: { title: 'Tita! #3 - Marzo 2025', folder: 'revistas/tita-3-pages', totalPages: 47, freePages: 15 },
+            4: { title: 'Tita! #4 - Diciembre 2025', folder: 'revistas/tita-4-pages', totalPages: 69, freePages: 20 },
         };
 
         let currentCarouselPage = 0;
         let currentRevistaTotal = 0;
+        let currentRevistaFreePages = 0;
+
+        // Check if user has premium access (subscribed)
+        function hasSubscription() {
+            // Check if user is logged in and has a subscription tier > 'gratis'
+            if (userProfile && userProfile.tier && userProfile.tier !== 'gratis') {
+                return true;
+            }
+            return false;
+        }
 
         function openRevista(num) {
             const revista = revistaData[num];
@@ -3158,19 +3410,39 @@
 
             const modal = document.getElementById('pdfModal');
             const container = document.getElementById('pdfContainer');
+            const isPremium = hasSubscription();
 
             currentCarouselPage = 0;
             currentRevistaTotal = revista.totalPages;
+            currentRevistaFreePages = revista.freePages;
 
             // Generate horizontal carousel with lazy-loaded images
             let pagesHtml = '';
             for (let i = 1; i <= revista.totalPages; i++) {
                 const pageNum = i.toString().padStart(2, '0');
-                pagesHtml += `
-                    <div class="carousel-page" data-page="${i}">
-                        <img src="${revista.folder}/page-${pageNum}.webp" alt="Página ${i}" loading="lazy">
-                    </div>
-                `;
+                const isLocked = !isPremium && i > revista.freePages;
+
+                if (isLocked) {
+                    // Locked page with blur and paywall overlay
+                    pagesHtml += `
+                        <div class="carousel-page carousel-page-locked" data-page="${i}">
+                            <img src="${revista.folder}/page-${pageNum}.webp" alt="Página ${i}" loading="lazy" style="filter: blur(15px); opacity: 0.5;">
+                            <div class="paywall-overlay">
+                                <div class="paywall-lock">🔒</div>
+                                <h3 class="paywall-title">Contenido exclusivo</h3>
+                                <p class="paywall-text">Suscribite para seguir leyendo las ${revista.totalPages - revista.freePages} páginas restantes</p>
+                                <button class="paywall-btn" onclick="scrollToSection('perfil')">VER SUSCRIPCIONES</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Free page
+                    pagesHtml += `
+                        <div class="carousel-page" data-page="${i}">
+                            <img src="${revista.folder}/page-${pageNum}.webp" alt="Página ${i}" loading="lazy">
+                        </div>
+                    `;
+                }
             }
 
             container.innerHTML = pagesHtml;
@@ -3211,6 +3483,7 @@
             const container = document.getElementById('pdfContainer');
             container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
         }
+
 
         // Magazine Shop Logic
         const magazineCart = { 1: 0, 2: 0, 3: 0, 4: 0 };
