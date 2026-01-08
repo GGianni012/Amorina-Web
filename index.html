@@ -1907,9 +1907,13 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: flex-start;
+                /* Ensure top isn't cut off */
                 text-align: center;
                 width: 100%;
                 overflow-x: hidden;
+                overflow-y: auto;
+                /* Allow internal scrolling if needed */
             }
 
             #revista .section-title {
@@ -2702,6 +2706,7 @@
                 sections[index].scrollIntoView({ behavior: 'smooth' });
             }
 
+            // Immediately update UI for better responsiveness
             updateActiveNav(index);
         }
 
@@ -2734,26 +2739,35 @@
         // Observe section changes
         function setupSectionObserver() {
             const wrapper = document.getElementById('sectionsWrapper');
+            const sections = wrapper.querySelectorAll('.section');
 
+            const observerOptions = {
+                root: wrapper,
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = Array.from(sections).indexOf(entry.target);
+                        updateActiveNav(index);
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+
+            // Fallback scroll listener for compatibility or edge cases
             wrapper.addEventListener('scroll', () => {
-                const sections = wrapper.querySelectorAll('.section');
-
                 if (isMobile) {
-                    // Horizontal scroll - check which section is visible
                     const scrollLeft = wrapper.scrollLeft;
-                    const sectionWidth = window.innerWidth;
+                    const sectionWidth = wrapper.clientWidth;
                     const currentIndex = Math.round(scrollLeft / sectionWidth);
-                    updateActiveNav(currentIndex);
-                } else {
-                    // Vertical scroll
-                    const scrollTop = wrapper.scrollTop;
-                    sections.forEach((section, i) => {
-                        if (section.offsetTop <= scrollTop + 200) {
-                            updateActiveNav(i);
-                        }
-                    });
+                    if (currentIndex >= 0 && currentIndex < sections.length) {
+                        updateActiveNav(currentIndex);
+                    }
                 }
-            });
+            }, { passive: true });
         }
 
         // Open modal
