@@ -489,13 +489,36 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(201, 88, 111, 0) 0%, rgba(201, 88, 111, 0.15) 100%);
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1;
+            pointer-events: none;
         }
 
         .movie-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 8px 8px 0 var(--black);
+            transform: translateY(-12px) scale(1.03);
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(201, 88, 111, 0.3);
+            border-color: var(--red);
+        }
+
+        .movie-card:hover::before {
+            opacity: 1;
         }
 
         .movie-time-badge {
@@ -508,14 +531,37 @@
             font-family: 'Bebas Neue', sans-serif;
             font-size: 0.9rem;
             letter-spacing: 1px;
-            z-index: 2;
+            z-index: 3;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .movie-card:hover .movie-time-badge {
+            background: var(--red);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(201, 88, 111, 0.4);
+        }
+
+        .movie-poster-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--black);
+            transition: border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .movie-card:hover .movie-poster-wrapper {
+            border-color: var(--red);
         }
 
         .movie-poster {
             width: 100%;
             height: 350px;
             object-fit: cover;
-            border-bottom: 2px solid var(--black);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s ease;
+        }
+
+        .movie-card:hover .movie-poster {
+            transform: scale(1.08);
+            filter: brightness(1.05) saturate(1.1);
         }
 
         .movie-info {
@@ -523,6 +569,9 @@
             display: flex;
             flex-direction: column;
             flex: 1;
+            z-index: 2;
+            position: relative;
+            transition: background 0.4s ease;
         }
 
         .movie-director {
@@ -530,6 +579,11 @@
             color: #666;
             margin-bottom: 4px;
             font-family: 'Cormorant Garamond', serif;
+            transition: color 0.3s ease;
+        }
+
+        .movie-card:hover .movie-director {
+            color: var(--red);
         }
 
         .movie-title {
@@ -538,6 +592,12 @@
             letter-spacing: 0.5px;
             margin-bottom: 8px;
             line-height: 1.1;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .movie-card:hover .movie-title {
+            color: var(--red);
+            transform: translateX(4px);
         }
 
         .movie-meta {
@@ -553,12 +613,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .movie-card:hover .movie-footer {
+            border-color: rgba(201, 88, 111, 0.3);
         }
 
         .movie-price {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1.5rem;
             color: var(--black);
+            transition: transform 0.3s ease;
+        }
+
+        .movie-card:hover .movie-price {
+            transform: scale(1.05);
         }
 
         .movie-btn {
@@ -569,11 +639,33 @@
             font-size: 1.2rem;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
         }
 
         .movie-btn:hover {
             background: var(--green-light);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .movie-btn:hover::after {
+            width: 200px;
+            height: 200px;
         }
 
         /* ==================== OTHER SECTIONS ==================== */
@@ -2482,9 +2574,42 @@
             .movie-card {
                 width: 100%;
                 scroll-snap-align: start;
+                border-radius: 8px;
             }
 
             .movie-card:hover {
+                transform: none;
+                box-shadow: none;
+                border-color: var(--black);
+            }
+
+            .movie-card:hover::before {
+                opacity: 0;
+            }
+
+            .movie-card:active {
+                transform: scale(0.98);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+                border-color: var(--red);
+            }
+
+            .movie-card:hover .movie-title,
+            .movie-card:hover .movie-director {
+                color: inherit;
+                transform: none;
+            }
+
+            .movie-card:active .movie-title {
+                color: var(--red);
+            }
+
+            .movie-card:hover .movie-poster {
+                transform: none;
+                filter: none;
+            }
+
+            .movie-card:hover .movie-time-badge {
+                background: var(--black);
                 transform: none;
                 box-shadow: none;
             }
@@ -4609,6 +4734,52 @@
             payBtn.disabled = true;
 
             try {
+                // ADMIN BYPASS CHECK
+                if (isUserAdmin(user.email)) {
+                    // Call special endpoint or just sync row
+                    const response = await fetch(`${SUPABASE_URL}/functions/v1/magazine-checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({
+                            items: items,
+                            subtotal: subtotal,
+                            discountAmount: discountAmount,
+                            shippingMethod: shippingType,
+                            shippingCost: shippingCost,
+                            shippingAddress: shippingType === 'delivery' ? {
+                                address: document.getElementById('shipAddress').value,
+                                postalCode: document.getElementById('shipZip').value
+                            } : null,
+                            userEmail: user.email,
+                            userName: user.user_metadata.full_name || user.email.split('@')[0],
+                            totalAmount: totalAmount,
+                            bypassPayment: true // FLAG FOR ADMIN
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        alert(`✅ VENTA REGISTRADA (Modo Admin)\n\nLa venta se guardó en el Excel sin pasar por MercadoPago.`);
+                        magazineCart = { 1: 0, 2: 0, 3: 0, 4: 0 }; // Reset cart
+                        updateMagazineCartTotal();
+                        closeShippingModal();
+                        // Reset buttons
+                        Object.keys(magazineCart).forEach(id => {
+                            const el = document.getElementById(`mag-qty-${id}`);
+                            if (el) el.textContent = '0';
+                        });
+                    } else {
+                        alert('Error al registrar venta admin: ' + (data.error || 'Desconocido'));
+                    }
+                    payBtn.textContent = originalText;
+                    payBtn.disabled = false;
+                    return;
+                }
+
                 const response = await fetch(`${SUPABASE_URL}/functions/v1/magazine-checkout`, {
                     method: 'POST',
                     headers: {
